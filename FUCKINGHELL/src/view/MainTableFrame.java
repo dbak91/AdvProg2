@@ -971,7 +971,7 @@ private void setDelayPanel() {
 			fullPanel.add(scrollPane);
 		}
 		userFuncPanel.removeAll();
-//dabhhh
+//dabhhh2
 		JLabel termLabel = new JLabel("Search:");
 		JTextField term = new JTextField(20); // set size to roughly 20 characters
 		JLabel in = new JLabel("In:");
