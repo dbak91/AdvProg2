@@ -621,8 +621,11 @@ private void setDelayPanel() {
 	{
 
 
-		fullPanel.remove(delayPiePanel);
-		fullPanel.add(scrollPane);
+		if(delayPiePanel!=null)
+		{
+			fullPanel.remove(delayPiePanel);
+			fullPanel.add(scrollPane);
+		}
 		JLabel yearLabel = new JLabel("Date of Flight ([YYYY] / [YYYY-MM] / [YYYY-MM-DD])");
 		userFuncPanel.add(yearLabel);
 		JTextField yearField = new JTextField(6);
@@ -668,8 +671,11 @@ private void setDelayPanel() {
 	private void setAirportBasicPanel()
 	{
 
-		fullPanel.remove(delayPiePanel);
-		fullPanel.add(scrollPane);
+		if(delayPiePanel!=null)
+		{
+			fullPanel.remove(delayPiePanel);
+			fullPanel.add(scrollPane);
+		}
 		userFuncPanel.removeAll();
 		// searchPanel.add(options);
 		// searchPanel.add(new JLabel(" | "));
@@ -794,8 +800,11 @@ private void setDelayPanel() {
 	private void setAirportFullPanel()
 	{
 
-		fullPanel.remove(delayPiePanel);
-		fullPanel.add(scrollPane);
+		if(delayPiePanel!=null)
+		{
+			fullPanel.remove(delayPiePanel);
+			fullPanel.add(scrollPane);
+		}
 
 		userFuncPanel.removeAll();
 		userFuncPanel.add(viewSelectorComboBox);
