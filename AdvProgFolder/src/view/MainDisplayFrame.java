@@ -971,10 +971,15 @@ public class MainDisplayFrame extends JFrame
 			}
 			System.out.println(
 					"type " + columnDropdown.getSelectedItem().toString().toLowerCase() + " term " + term.getText());
-			populateTableWithSingleSearchTerm(columnDropdown.getSelectedItem().toString().toLowerCase(),
-					term.getText(),
-					currentSortColumn,
-					true);
+			Runnable task = ()-> {
+				populateTableWithSingleSearchTerm(columnDropdown.getSelectedItem().toString().toLowerCase(),
+						term.getText(),
+						currentSortColumn,
+						true);
+			};
+			
+			runWithLoadingLabel(task, null, "Searching..."+term.getText());
+				
 		});
 
 		JButton fullSearchButton = new JButton("Full Search");
@@ -1431,7 +1436,7 @@ public class MainDisplayFrame extends JFrame
 	 * @param event for the special cause of being on ViewOptions select, expected null if not ComboBox item event
 	 * @param baseInput label text
 	 */
-	public static void runWithLoadingLabel(Runnable task, ItemEvent event, String baseInput) 
+	public void runWithLoadingLabel(Runnable task, ItemEvent event, String baseInput) 
 	{
 		
 		JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
@@ -1466,11 +1471,13 @@ public class MainDisplayFrame extends JFrame
 				 + "[" + secondsElapsed[0] + "s]");
 				
 				if(secondsElapsed[0]>5 && event != null) 
-				{				
-					if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>10 && event.getItem().toString().toLowerCase().contains("analysis")))
+				{	// update label on >5 for all other selections other than analaysis
+					// for analysis selection use > 15 (expected to be > 5)
+					
+					if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>15 && event.getItem().toString().toLowerCase().contains("analysis")))
 					{	
 						loadingLabel.setText("<html>"+finalBase+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
-								+ "Previous Run / OneDrive </html>");
+								+ "e.g. Previous run / OneDrive </html>");
 					
 						loading.setSize(420,160);
 						loading.revalidate();
