@@ -454,6 +454,13 @@ public class MainDisplayFrame extends JFrame
 		}
 
 	}
+	
+	
+	/**
+	 * Set the table to contain airline data
+	 * 
+	 *  retrieves all airlines matching searchMap criteria and applied to table
+	 */
 	public void populateTableWithAirline()
 	{
 		try
@@ -553,7 +560,7 @@ public class MainDisplayFrame extends JFrame
 
 	/**
 	 * Populates the basic only table with airport matching the searchMap content
-	 * (can be made redunant by using the other airport populate function)
+	 * (can be made redundant by using the other airport populate function)
 	 *
 	 * <p>
 	 * No need for handling of which panel is selected, only called on
@@ -668,7 +675,7 @@ public class MainDisplayFrame extends JFrame
 	}
 
 	/**
-	 * Set the user function panel for airport basic flight count (minimum detail
+	 * Set the user function panel for airport basic flight count (minimum stats detail
 	 * but more content in function panel)
 	 */
 	private void setAirportBasicPanel()
@@ -1001,7 +1008,7 @@ public class MainDisplayFrame extends JFrame
 
 	/**
 	 * Action listener for special sorting actions on clicking column headers i.e.
-	 * recall populateTableWith... to request a new sort order and and by returned from db
+	 * recall populateTableWith... to request a new 'sort order' and and 'sort by' returned from db
 	 */
 	private void setTableHeaderListener()
 	{
@@ -1142,117 +1149,6 @@ public class MainDisplayFrame extends JFrame
 						}; // runnable task
 						
 						runWithLoadingLabel(task, null, "Reording...");
-						
-//						JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
-//						loading.setSize(420, 80);
-//						loading.setLocationRelativeTo(null);
-//						JLabel loadingLabel = new JLabel("Reording...");
-//						loadingLabel.setVerticalAlignment(SwingConstants.TOP);
-//						loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
-//
-//						int[] secondsElapsed = {0};
-//						loading.setLayout(new BorderLayout());
-//						loading.add(loadingLabel, BorderLayout.CENTER);
-//						// Use an explicit ActionListener for Java 8 compatibility
-//						ActionListener updateLabel = new ActionListener()
-//						{
-//							@Override
-//							public void actionPerformed(ActionEvent e)
-//							{
-//								secondsElapsed[0]++;
-//								loadingLabel.setText("Loading..." 
-//								 + "[" + secondsElapsed[0] + "s]");
-//								if(secondsElapsed[0]>10) {
-//									loading.setSize(320,200);
-//									loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
-//											+ "Previous Run / OneDrive </html>");
-//									
-//								}
-//							}
-//						};
-//
-//						final Timer timer = new Timer(1000, updateLabel);
-//						timer.start();
-//
-//						//loadingLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-//						loading.getContentPane().add(loadingLabel);
-//						loading.pack();
-//						loading.setLocationRelativeTo(null);
-//						loading.setSize(250,80);
-//
-//						SwingWorker<Void, Void> worker = new SwingWorker<>()
-//						{
-//							@Override
-//							protected Void doInBackground()
-//							{
-//
-//								if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flights"))
-//								{
-//									if (searchActive)
-//									{
-//
-//										populateTableWithFlightSearch(currentSortColumn, ascending);
-//									}
-//									else
-//									{
-//										populateTableWithAllFlights(currentSortColumn, ascending);
-//									}
-//
-//								}
-//								else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains(
-//										"analysis"))
-//								{
-//									/*
-//									 * cater for difference ebteween column identifiers and db fields
-//									 */
-//									if (currentSortColumn.toLowerCase().contains("delay orig"))
-//									{
-//										currentSortColumn = "avg_delay_orig";
-//									}
-//									else if (currentSortColumn.toLowerCase().contains("delay dest"))
-//									{
-//										currentSortColumn = "avg_delay_dest";
-//									}
-//									else if (currentSortColumn.toLowerCase().contains("total delay dest"))
-//									{
-//										currentSortColumn = "total_delay_dest";
-//									}
-//									else if (currentSortColumn.toLowerCase().contains("total delay orig"))
-//									{
-//										currentSortColumn = "total_delay_orig";
-//									}
-//									else if (currentSortColumn.toLowerCase().contains("most_airline"))
-//									{
-//										currentSortColumn = "most_frequent";
-//									}
-//									else if (currentSortColumn.toLowerCase().contains("least_airline"))
-//									{
-//										currentSortColumn = "least_frequent";
-//									}
-//
-//									populateTableWithAirport(true);
-//								}
-//								else if (!searchActive)
-//								{
-//									populateTableWithAirport(false);
-//								}
-//								else
-//								{
-//									populateBasicTableWithAirport();
-//								}
-//								return null;
-//							}
-//
-//							@Override
-//							protected void done()
-//							{
-//								loading.dispose(); // close the popup
-//							}
-//						};
-//
-//						worker.execute();
-//						loading.setVisible(true);
-
 					}
 					// else
 					// if not contains 'line'
@@ -1374,10 +1270,10 @@ public class MainDisplayFrame extends JFrame
 	/**
 	 * Extend DocumentListener to only pass to super insert/replace if input is
 	 * digits only i.e no text will be inserted into JComobBox if this is not the
-	 * this case
+	 * the case
 	 *
 	 * <p>
-	 * Currently doesn't allow "-" charactwer for negative
+	 * Currently doesn't allow '-' character for negative
 	 * </p>
 	 */
 	public class NumberOnlyFilter extends DocumentFilter
@@ -1412,7 +1308,7 @@ public class MainDisplayFrame extends JFrame
 	 * from DB. Doesn't allow negative pages (stops at 0 first page)
 	 *
 	 * Future enh: calculate offset and allow negative, though probably not needed
-	 * since user can sort by header to get the last/highest result anyway
+	 * since user can sort by header to get the last/highest result that way anyway
 	 *
 	 */
 	public class PageButtonActionListener implements ActionListener
@@ -1528,8 +1424,11 @@ public class MainDisplayFrame extends JFrame
 	 * Attempt at getting the repeated loading screen work in background to be defined once,
 	 * , able to pass code to a function in java? fantastic. 
 	 * 
-	 * @param task  the code to run on in backgorund
-	 * @param event for the special cause of being on ViewOptions select
+	 * <p>Sets up a label and loading JDialog and uses swing worker to execute the task in 
+	 * background off the EDT.</p> 
+	 * 
+	 * @param task  the code to run on in background
+	 * @param event for the special cause of being on ViewOptions select, expected null if not ComboBox item event
 	 * @param baseInput label text
 	 */
 	public static void runWithLoadingLabel(Runnable task, ItemEvent event, String baseInput) 
@@ -1566,22 +1465,18 @@ public class MainDisplayFrame extends JFrame
 				loadingLabel.setText(finalBase
 				 + "[" + secondsElapsed[0] + "s]");
 				
-				if(secondsElapsed[0]>5) {
-					if(event!=null)
-				
-					{
-						if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>10 && event.getItem().toString().toLowerCase().contains("analysis")))
-						{	
-
-							loadingLabel.setText("<html>"+finalBase+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
-									+ "Previous Run / OneDrive </html>");
+				if(secondsElapsed[0]>5 && event != null) 
+				{				
+					if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>10 && event.getItem().toString().toLowerCase().contains("analysis")))
+					{	
+						loadingLabel.setText("<html>"+finalBase+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
+								+ "Previous Run / OneDrive </html>");
 					
-							loading.setSize(420,160);
-							loading.revalidate();
-							loading.repaint();
+						loading.setSize(420,160);
+						loading.revalidate();
+						loading.repaint();
 					
-						}	
-					}//event not null					
+					}						
 				}//seconds >5
 			}//actionperformed
 		};//action list
@@ -1599,8 +1494,8 @@ public class MainDisplayFrame extends JFrame
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				task.run();
-				// Time-consuming operation
+				task.run();  		// Time-consuming operation
+		
 				return null;
 			}
 
@@ -1615,6 +1510,7 @@ public class MainDisplayFrame extends JFrame
 	
 		csvWorker.execute(); // worker.execute();
 		loading.setVisible(true);
+		
 	}// void run with loading
 	
 	
