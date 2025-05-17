@@ -2,13 +2,13 @@ package controller;
 
 import javax.swing.SwingUtilities;
 
-import view.FirstDialogueScreen;
+import view.WelcomeScreenJDialog;
 import view.MainDisplayFrame;
 /**
  * Java entry point.
  *
  * <p>
- * Creates and sets visible a splash screen (FirstDialogScreen) and after close, does the same
+ * Creates and sets visible a splash screen (WelcomeScreenJDialog) and after close, does the same
  * for the main swing frame (TableViewFrame).
  * </p>
  *
@@ -21,7 +21,7 @@ public class FlightAnalyisApp
 
 		SwingUtilities.invokeLater(() ->
 		{
-			FirstDialogueScreen first = new FirstDialogueScreen();
+			WelcomeScreenJDialog first = new WelcomeScreenJDialog();
 
 			first.setVisible(true);
 

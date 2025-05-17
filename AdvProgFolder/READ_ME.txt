@@ -13,6 +13,11 @@ There are two ways to run the app:
 2: Use the JAR in JAR folder to launch precompiled version (not technically compiled, obj code). 
    This can be achieved through Windows Explorer double-click or typical CMD launch.  
 
+Links
+-----
+Dev code - https://github.com/dbak91/SamReal
+Live publish - https://dbak91.github.io/SamReal/
+
 Troubleshooting:
 -----------------
 1.

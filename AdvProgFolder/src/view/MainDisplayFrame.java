@@ -90,7 +90,7 @@ public class MainDisplayFrame extends JFrame
 					"Airline (~10sec)",
 					"Airport - Basic Flight Count (~5sec)",
 					"Airport - Analysis (10-45sec)",
-					"Delay Reaosn Pie"
+					"Delay Reason Pie"
 			};
 
 

@@ -14,8 +14,8 @@ import model.sql.SearchStataments;
 /**
  * DAO for the database.
  *
- * <p>A bit of an amalgam in that it is capable of returning FlightWithDelay, AirlineWithData or Airport
- * representing Flight, Airport, Airline entries from the database tables. </p>
+ * <p>A bit of an amalgam in that it is capable of returning FlightWithDelay, AirlineWithData or Airport, DelayReason,
+ * representing Flight, Airport, Airline, entries from the database tables. </p>
  *
  * @author 23751662
  */
@@ -70,6 +70,15 @@ public class DataDAO implements AutoCloseable
 		public Integer	actualArrival;
 		public String	delayReason;
 		public Integer	delayLength;
+	}
+	/**
+	 * Class representing Delay_Reason
+	 */
+	public class DelayReason
+	{
+		public int flightId=0;
+		public String reason = "";
+		public int reasonCount =0;
 	}
 
 	// for connection interaction with database
