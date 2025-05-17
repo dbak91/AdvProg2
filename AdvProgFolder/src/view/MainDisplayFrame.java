@@ -1282,61 +1282,9 @@ public class MainDisplayFrame extends JFrame
 					currentSortColumn = "date";
 
 					String selectedItem = (String) e.getItem();
-
-					JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
-					loading.setSize(420, 80);
-					loading.setLocationRelativeTo(null);
-					
-					String base = "Loading..."+e.getItem();
-					JLabel loadingLabel = new JLabel("Loading..."+e.getItem());
-					loadingLabel.setVerticalAlignment(SwingConstants.TOP);
-					loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
-
-					int[] secondsElapsed = {0};
-					loading.setLayout(new BorderLayout());
-					loading.add(loadingLabel, BorderLayout.CENTER);
-					ItemEvent event = e;
-					// Use an explicit ActionListener for Java 8 compatibility
-					ActionListener updateLabel = new ActionListener()
-					{
-						@Override
-						public void actionPerformed(ActionEvent e)
-						{
-							secondsElapsed[0]++;
-							loadingLabel.setText(base
-							 + "[" + secondsElapsed[0] + "s]");
-							
-							if(secondsElapsed[0]>5) {
-								if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>10 && event.getItem().toString().toLowerCase().contains("analysis")))
-								{	
-									
-									
-								
-									loadingLabel.setText("<html>"+base+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
-										+ "Previous Run / OneDrive </html>");
-								
-									loading.setSize(420,160);
-									loading.revalidate();
-									loading.repaint();
-								
-								}	
-								//	loading.pack();
-								
-							}
-						}
-					};
-
-					final Timer timer = new Timer(1000, updateLabel);
-					timer.start();
-					loading.add(loadingLabel);
 					tableModel.setRowCount(0);
-					// loading.setVisible(true);
-					SwingWorker<Void, Void> csvWorker = new SwingWorker<>()
-					{
-						@Override
-						protected Void doInBackground() throws Exception
-						{
-							if (selectedItem.toLowerCase().contains("airline"))
+					 Runnable task = () -> {
+						 if (selectedItem.toLowerCase().contains("airline"))
 							{
 								setAirlinePanel(); // set function buttons
 
@@ -1383,22 +1331,10 @@ public class MainDisplayFrame extends JFrame
 							else{
 								setDelayPanel();
 							}
-							// Time-consuming operation
-							return null;
-						}
-
-						@Override
-						protected void done()
-						{
-							loading.dispose();
-							// continueButton.setEnabled(true);
-						}
-					};
-					csvWorker.execute(); // worker.execute();
-					loading.setVisible(true);
-
-
-
+			            };
+			            
+					runWithLoadingLabel(task, e, "Loading...");
+					
 					if (tableModel.getRowCount() < 49 && !selectedItem.toLowerCase().contains("analysis"))
 					{
 
@@ -1581,21 +1517,29 @@ public class MainDisplayFrame extends JFrame
 			return c;
 		}
 	}
-	
-	/*
-	 * Attempt at getting the repeating loading timer work in background to be defined once, 
-	 * not finished. 
+	/**
+	 * Attempt at getting the repeated loading screen work in background to be defined once,
+	 * , able to pass code to a function in java? fantastic. 
+	 * 
+	 * @param task  the code to run on in backgorund
+	 * @param event for the special cause of being on ViewOptions select
+	 * @param baseInput label text
 	 */
-	public static void runWithLoadingLabel(Runnable task, ItemEvent event) {
+	public static void runWithLoadingLabel(Runnable task, ItemEvent event, String baseInput) 
+	{
 		
 		JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
 		loading.setSize(420, 80);
 		loading.setLocationRelativeTo(null);
-		
-		String base = "Loading..."+event.getItem();
+		String base = new String(baseInput);
+		//String base = "Loading..."+event.getItem();
 		JLabel loadingLabel = new JLabel(base);
 		if(event!=null)
-			loadingLabel.setText("Loading..."+event.getItem());
+			{
+				base = base +event.getItem();
+				loadingLabel.setText(base);
+				
+			}
 		
 		loadingLabel.setVerticalAlignment(SwingConstants.TOP);
 		loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
@@ -1603,6 +1547,7 @@ public class MainDisplayFrame extends JFrame
 		int[] secondsElapsed = {0};
 		loading.setLayout(new BorderLayout());
 		loading.add(loadingLabel, BorderLayout.CENTER);
+		String finalBase = new String(base);
 		//ItemEvent event = e;
 		// Use an explicit ActionListener for Java 8 compatibility
 		ActionListener updateLabel = new ActionListener()
@@ -1611,7 +1556,7 @@ public class MainDisplayFrame extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				secondsElapsed[0]++;
-				loadingLabel.setText(base
+				loadingLabel.setText(finalBase
 				 + "[" + secondsElapsed[0] + "s]");
 				
 				if(secondsElapsed[0]>5) {
@@ -1620,10 +1565,8 @@ public class MainDisplayFrame extends JFrame
 					{
 						if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>10 && event.getItem().toString().toLowerCase().contains("analysis")))
 						{	
-						
-						
-					
-							loadingLabel.setText("<html>"+base+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
+
+							loadingLabel.setText("<html>"+finalBase+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
 									+ "Previous Run / OneDrive </html>");
 					
 							loading.setSize(420,160);
@@ -1631,12 +1574,10 @@ public class MainDisplayFrame extends JFrame
 							loading.repaint();
 					
 						}	
-					}
-					
-					
-				}
-			}
-		};
+					}//event not null					
+				}//seconds >5
+			}//actionperformed
+		};//action list
 
 		final Timer timer = new Timer(1000, updateLabel);
 		timer.start();
@@ -1662,8 +1603,12 @@ public class MainDisplayFrame extends JFrame
 				loading.dispose();
 				// continueButton.setEnabled(true);
 			}
-		};
+			
+		};//swing worker
+	
 		csvWorker.execute(); // worker.execute();
-	}
+		loading.setVisible(true);
+	}// void run with loading
+	
 	
 }
