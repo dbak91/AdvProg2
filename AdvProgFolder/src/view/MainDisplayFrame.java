@@ -897,74 +897,89 @@ public class MainDisplayFrame extends JFrame
 			// do in backgreoeund to allow progress button
 
 			System.err.println("import pressed");
-			JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
-			loading.setSize(420,80);
-			loading.setLocationRelativeTo(null);
-			JLabel loadingLabel = new JLabel("Searching...");
-			loadingLabel.setVerticalAlignment(SwingConstants.TOP);
-			loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
-
-			int[] secondsElapsed = {0};
-			loading.setLayout(new BorderLayout());
-			loading.add(loadingLabel, BorderLayout.CENTER);
-			// Use an explicit ActionListener for Java 8 compatibility
-			ActionListener updateLabel = new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent e)
+			
+			Runnable task = () -> {
+				// TIME CONSUMING
+				if (dateToSearch != null || iataToSearch != null || airlineToSearch != null)
 				{
-					secondsElapsed[0]++;
-					loadingLabel.setText("Loading..." 
-					 + "[" + secondsElapsed[0] + "s]");
-					if(secondsElapsed[0]>10) {
-						loading.setSize(320,200);
-						loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
-								+ "Previous Run / OneDrive </html>");
-						
-					}
+					populateTableWithAirport(true);
+				}
+				else
+				{
+					searchMap.clear();
+					populateTableWithAirport(true);
 				}
 			};
-
-			final Timer timer = new Timer(1000, updateLabel);
-			timer.start();
-			// do in background so loading can be displayed and updated
-			SwingWorker<Void, Void> csvWorker = new SwingWorker<>()
-			{
-				@Override
-				protected Void doInBackground() throws Exception
-				{
-					try
-					{
-
-						// TIME CONSUMING
-						if (dateToSearch != null || iataToSearch != null || airlineToSearch != null)
-						{
-							populateTableWithAirport(true);
-						}
-						else
-						{
-							searchMap.clear();
-							populateTableWithAirport(true);
-						}
-					} catch (Exception e)
-					{
-						JOptionPane.showMessageDialog(null,
-								"Import problem:\n" + "Type:" + e.getClass().getName() + "\n" + e.getMessage());
-						e.printStackTrace();
-					}
-					return null;
-				}
-
-				@Override
-				protected void done()
-				{
-					loading.dispose();
-				}
-			};
-
-			csvWorker.execute(); // worker.execute();
-
-			loading.setVisible(true);
+			
+			runWithLoadingLabel(task, null, "Searching....");
+//			JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
+//			loading.setSize(420,80);
+//			loading.setLocationRelativeTo(null);
+//			JLabel loadingLabel = new JLabel("Searching...");
+//			loadingLabel.setVerticalAlignment(SwingConstants.TOP);
+//			loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
+//
+//			int[] secondsElapsed = {0};
+//			loading.setLayout(new BorderLayout());
+//			loading.add(loadingLabel, BorderLayout.CENTER);
+//			// Use an explicit ActionListener for Java 8 compatibility
+//			ActionListener updateLabel = new ActionListener()
+//			{
+//				@Override
+//				public void actionPerformed(ActionEvent e)
+//				{
+//					secondsElapsed[0]++;
+//					loadingLabel.setText("Loading..." 
+//					 + "[" + secondsElapsed[0] + "s]");
+//					if(secondsElapsed[0]>10) {
+//						loading.setSize(320,200);
+//						loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
+//								+ "Previous Run / OneDrive </html>");
+//						
+//					}
+//				}
+//			};
+//
+//			final Timer timer = new Timer(1000, updateLabel);
+//			timer.start();
+//			// do in background so loading can be displayed and updated
+//			SwingWorker<Void, Void> csvWorker = new SwingWorker<>()
+//			{
+//				@Override
+//				protected Void doInBackground() throws Exception
+//				{
+//					try
+//					{
+//						
+//						// TIME CONSUMING
+//						if (dateToSearch != null || iataToSearch != null || airlineToSearch != null)
+//						{
+//							populateTableWithAirport(true);
+//						}
+//						else
+//						{
+//							searchMap.clear();
+//							populateTableWithAirport(true);
+//						}
+//					} catch (Exception e)
+//					{
+//						JOptionPane.showMessageDialog(null,
+//								"Import problem:\n" + "Type:" + e.getClass().getName() + "\n" + e.getMessage());
+//						e.printStackTrace();
+//					}
+//					return null;
+//				}
+//
+//				@Override
+//				protected void done()
+//				{
+//					loading.dispose();
+//				}
+//			};
+//
+//			csvWorker.execute(); // worker.execute();
+//
+//			loading.setVisible(true);
 
 			// else no action
 		});
