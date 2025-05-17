@@ -1,3 +1,5 @@
+Build Version: v1.0
+
 Setup
 ------
 Database is expected in the root directory (or created there on initial run) with name 'flights_data.db'
@@ -6,17 +8,16 @@ CSV data is expected in 'data/' folder with the name 'flights_sample_3m.csv' i.e
 
 Running
 --------
-There are two ways to run the app:
+There are two different ways to run the app:
 
-1: Import project and run 'FlightAnalyserApp' as Java app configuration. Note: External JARs will need to be added for JDBC & JFreeChart. "resources" folder must be added as class folder to enable getResources() to find createTable.sql on compilation. 
+1: Import project and run 'FlightAnalyserApp' as Java app configuration. Note: External JARs will need to be added for JDBC & JFreeChart. "resources" folder must be added as class folder to build path in order to enable getResources() to find createTable.sql on compilation. Eclipse Project and git settings were not exported, source only. 
 
-2: Use the JAR in JAR folder to launch precompiled version (not technically compiled, obj code). 
-   This can be achieved through Windows Explorer double-click or typical CMD launch.  
+2: Use the FlyghtAnalyserApp.jar in JAR_RUNNABLE folder to launch precompiled version (not technically compiled, obj code). 
+   This can be achieved through Windows Explorer double-click or typical CMD launch.  "javaw ./<dir><file>"
 
 Links
 -----
-Dev code - https://github.com/dbak91/SamReal
-Live publish - https://dbak91.github.io/SamReal/
+Source control: https://github.com/dbak91/AdvProg2/tree/master/AdvProgFolder
 
 Troubleshooting:
 -----------------

@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
@@ -897,13 +898,35 @@ public class MainDisplayFrame extends JFrame
 
 			System.err.println("import pressed");
 			JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
-			loading.setSize(420, 50);
+			loading.setSize(420,80);
 			loading.setLocationRelativeTo(null);
+			JLabel loadingLabel = new JLabel("Searching...");
+			loadingLabel.setVerticalAlignment(SwingConstants.TOP);
+			loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
-			JLabel loadingLabel = new JLabel("Recalculating...");
-			loading.add(loadingLabel);
-			// loading.setVisible(true);
+			int[] secondsElapsed = {0};
+			loading.setLayout(new BorderLayout());
+			loading.add(loadingLabel, BorderLayout.CENTER);
+			// Use an explicit ActionListener for Java 8 compatibility
+			ActionListener updateLabel = new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					secondsElapsed[0]++;
+					loadingLabel.setText("Loading..." 
+					 + "[" + secondsElapsed[0] + "s]");
+					if(secondsElapsed[0]>10) {
+						loading.setSize(320,200);
+						loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
+								+ "Previous Run / OneDrive </html>");
+						
+					}
+				}
+			};
 
+			final Timer timer = new Timer(1000, updateLabel);
+			timer.start();
 			// do in background so loading can be displayed and updated
 			SwingWorker<Void, Void> csvWorker = new SwingWorker<>()
 			{
@@ -1113,36 +1136,42 @@ public class MainDisplayFrame extends JFrame
 							currentSortColumn = "flight_destination";
 						}
 
-						JDialog loadingDialog = new JDialog();
+						JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
+						loading.setSize(420, 80);
+						loading.setLocationRelativeTo(null);
+						JLabel loadingLabel = new JLabel("Reording...");
+						loadingLabel.setVerticalAlignment(SwingConstants.TOP);
+						loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
-						JLabel loadingLabel = new JLabel("Loading, please wait...  ");
-
-						final int[] secondsElapsed =
-							{
-									0
-							};
-
-						// an explicit ActionListener for Java 8 compatibility,
-						// dev: wait why am i using java 8 that is only Employer restriction!
+						int[] secondsElapsed = {0};
+						loading.setLayout(new BorderLayout());
+						loading.add(loadingLabel, BorderLayout.CENTER);
+						// Use an explicit ActionListener for Java 8 compatibility
 						ActionListener updateLabel = new ActionListener()
 						{
 							@Override
 							public void actionPerformed(ActionEvent e)
 							{
 								secondsElapsed[0]++;
-								loadingLabel.setText("Loading...Analysis & re-sort (" + secondsElapsed[0] + "s)");
+								loadingLabel.setText("Loading..." 
+								 + "[" + secondsElapsed[0] + "s]");
+								if(secondsElapsed[0]>10) {
+									loading.setSize(320,200);
+									loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
+											+ "Previous Run / OneDrive </html>");
+									
+								}
 							}
 						};
 
-						// fr updating loading label
 						final Timer timer = new Timer(1000, updateLabel);
 						timer.start();
 
 						//loadingLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-						loadingDialog.getContentPane().add(loadingLabel);
-						loadingDialog.pack();
-						loadingDialog.setLocationRelativeTo(null);
-						loadingDialog.setSize(250,50);
+						loading.getContentPane().add(loadingLabel);
+						loading.pack();
+						loading.setLocationRelativeTo(null);
+						loading.setSize(250,80);
 
 						SwingWorker<Void, Void> worker = new SwingWorker<>()
 						{
@@ -1210,12 +1239,12 @@ public class MainDisplayFrame extends JFrame
 							@Override
 							protected void done()
 							{
-								loadingDialog.dispose(); // close the popup
+								loading.dispose(); // close the popup
 							}
 						};
 
 						worker.execute();
-						loadingDialog.setVisible(true);
+						loading.setVisible(true);
 
 					}
 					// else
@@ -1255,15 +1284,18 @@ public class MainDisplayFrame extends JFrame
 					String selectedItem = (String) e.getItem();
 
 					JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
-					// loading.setTitle("Loading");
-					loading.setSize(300, 50);
+					loading.setSize(420, 80);
 					loading.setLocationRelativeTo(null);
-					final int[] secondsElapsed =
-						{
-								0
-						};
+					
+					String base = "Loading..."+e.getItem();
+					JLabel loadingLabel = new JLabel("Loading..."+e.getItem());
+					loadingLabel.setVerticalAlignment(SwingConstants.TOP);
+					loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
-					JLabel loadingLabel = new JLabel("Loading...");
+					int[] secondsElapsed = {0};
+					loading.setLayout(new BorderLayout());
+					loading.add(loadingLabel, BorderLayout.CENTER);
+					ItemEvent event = e;
 					// Use an explicit ActionListener for Java 8 compatibility
 					ActionListener updateLabel = new ActionListener()
 					{
@@ -1271,7 +1303,26 @@ public class MainDisplayFrame extends JFrame
 						public void actionPerformed(ActionEvent e)
 						{
 							secondsElapsed[0]++;
-							loadingLabel.setText("Loading..." + selectedItem + "[" + secondsElapsed[0] + "s]");
+							loadingLabel.setText(base
+							 + "[" + secondsElapsed[0] + "s]");
+							
+							if(secondsElapsed[0]>5) {
+								if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>10 && event.getItem().toString().toLowerCase().contains("analysis")))
+								{	
+									
+									
+								
+									loadingLabel.setText("<html>"+base+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
+										+ "Previous Run / OneDrive </html>");
+								
+									loading.setSize(420,160);
+									loading.revalidate();
+									loading.repaint();
+								
+								}	
+								//	loading.pack();
+								
+							}
 						}
 					};
 
