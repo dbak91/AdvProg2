@@ -626,6 +626,8 @@ public class MainDisplayFrame extends JFrame
 			fullPanel.remove(delayPiePanel);
 			fullPanel.add(scrollPane);
 		}
+		userFuncPanel.removeAll();
+		userFuncPanel.add(viewSelectorComboBox);
 		JLabel yearLabel = new JLabel("Date of Flight ([YYYY] / [YYYY-MM] / [YYYY-MM-DD])");
 		userFuncPanel.add(yearLabel);
 		JTextField yearField = new JTextField(6);
@@ -1269,7 +1271,7 @@ public class MainDisplayFrame extends JFrame
 						public void actionPerformed(ActionEvent e)
 						{
 							secondsElapsed[0]++;
-							loadingLabel.setText("Loading..." + selectedItem + "(" + secondsElapsed[0] + "s)");
+							loadingLabel.setText("Loading..." + selectedItem + "[" + secondsElapsed[0] + "s]");
 						}
 					};
 
