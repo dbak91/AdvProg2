@@ -1,3 +1,0 @@
-csv with expected name should be placed in this folder/location
-
-name "flights_sample_3m.csv"
