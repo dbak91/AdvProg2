@@ -33,7 +33,7 @@ public class CSVActionListener implements ActionListener
 {
 
 	private JButton			continueBtn	= null;
-	private MainTableFrame	parent;
+	private MainDisplayFrame	parent;
 
 	/**
 	 * Constructor (with continue button)<br>
@@ -48,12 +48,12 @@ public class CSVActionListener implements ActionListener
 	}
 
 	/**
-	 * Constructor (with parent MainTableFrame)<br>
+	 * Constructor (with parent MainDisplayFrame)<br>
 	 * continue button will be null
 	 *
 	 * @param parent frame that is the parent. must have used methods
 	 */
-	public CSVActionListener(MainTableFrame parent)
+	public CSVActionListener(MainDisplayFrame parent)
 	{
 		this.parent = parent;
 		continueBtn = null;

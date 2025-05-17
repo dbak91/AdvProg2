@@ -3,7 +3,7 @@ package controller;
 import javax.swing.SwingUtilities;
 
 import view.FirstDialogueScreen;
-import view.MainTableFrame;
+import view.MainDisplayFrame;
 /**
  * Java entry point.
  *
@@ -25,7 +25,7 @@ public class FlightAnalyisApp
 
 			first.setVisible(true);
 
-			MainTableFrame frame = new MainTableFrame();
+			MainDisplayFrame frame = new MainDisplayFrame();
 			//open in center, must pack/load first
 			frame.setLocationRelativeTo(null);
 

@@ -60,7 +60,7 @@ import model.DataDAO.FlightWithDelay;
  *
  * Monolithic, future enh. to modularise
  */
-public class MainTableFrame extends JFrame
+public class MainDisplayFrame extends JFrame
 {
 
 	/*
@@ -190,12 +190,12 @@ public class MainTableFrame extends JFrame
 	 * -----------Constructor----------------------------------
 	 * ---------------------------------------------------------
 	 */
-	public MainTableFrame()
+	public MainDisplayFrame()
 	{
 		initialise();
 	}
 
-	public MainTableFrame(String name)
+	public MainDisplayFrame(String name)
 	{
 		super(name);
 		initialise();

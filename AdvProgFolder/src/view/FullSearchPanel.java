@@ -65,7 +65,7 @@ public class FullSearchPanel extends JPanel
 	/**
 	 * @param parent
 	 */
-	public FullSearchPanel(MainTableFrame parent)
+	public FullSearchPanel(MainDisplayFrame parent)
 	{
 
 		setLayout(new BorderLayout());
