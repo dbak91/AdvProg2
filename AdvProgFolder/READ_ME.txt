@@ -10,21 +10,23 @@ Running
 --------
 There are two different ways to run the app:
 
-1: Import project and run 'FlightAnalyserApp' as Java app configuration. Note: External JARs will need to be added for JDBC & JFreeChart. "resources" folder must be added as class folder to build path in order to enable getResources() to find createTable.sql on compilation. Eclipse Project and git settings were not exported, source only. 
+1: Import project and run 'FlightAnalyserApp' as Java app configuration. Note: External JARs will need to be added for JDBC & JFreeChart. "resources" folder must be added as class folder to build path in order to enable getResources() to find createTable.sql on compilation. 
 
-2: Use the FlyghtAnalyserApp.jar in JAR_RUNNABLE folder to launch precompiled version (not technically compiled, obj code). 
-   This can be achieved through Windows Explorer double-click or typical CMD launch.  "javaw ./<dir><file>"
+Eclipse Project and git settings were not exported, source only. 
+
+2: Use the FlightAnalyserApp.jar in JAR_RUNNABLE folder to launch precompiled version (not technically compiled, obj code). 
+   This can be achieved through Windows Explorer double-click or typical CMD launch.  'javaw ./<dir><file>'
 
 Links
 -----
-Source control: https://github.com/dbak91/AdvProg2/tree/master/AdvProgFolder
+Source control: https://github.com/dbak91/AdvProg2/
 
 Troubleshooting:
 -----------------
 1.
 Problem:       No display on launch 
 Reason:        Splash screen is a JDialog, eclipse launch can go funny and may not be brought to front of view.
-Circumvention: Minimize all windows(bottom rhs), bring eclipse back by selecting in taskbar, then minimise eclipse. 
+Circumvention: Minimize all windows(bottom rhs), bring eclipse back by selecting it in taskbar, then minimise eclipse. 
                This should leave the splash screen still visible
 
 2.             
@@ -37,7 +39,7 @@ Circumvention: Ensure csv is named and in correct location(see setup)
 Problem:       Search is very slow
 Reason:        If number of matches doesn't quickly reach LIMIT field the search must traverse all data
 Circumvention: If expecting single entry search will be slow. 
-               Ensure search term is generic enough for quickly grouping result that hit the limit returned and sort by convenient headers(Page Size: Flights 50, Airline 18,AirportF 10. 
+               Ensure search term is generic enough for quickly grouping result that hit the limit returned and sort by convenient headers(Page Size: Flights 50, Airline 18, AirportFull 10). 
 
 4.             
 Problem:       Loading Airport Analysis is too slow
