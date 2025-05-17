@@ -912,74 +912,6 @@ public class MainDisplayFrame extends JFrame
 			};
 			
 			runWithLoadingLabel(task, null, "Searching....");
-//			JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
-//			loading.setSize(420,80);
-//			loading.setLocationRelativeTo(null);
-//			JLabel loadingLabel = new JLabel("Searching...");
-//			loadingLabel.setVerticalAlignment(SwingConstants.TOP);
-//			loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
-//
-//			int[] secondsElapsed = {0};
-//			loading.setLayout(new BorderLayout());
-//			loading.add(loadingLabel, BorderLayout.CENTER);
-//			// Use an explicit ActionListener for Java 8 compatibility
-//			ActionListener updateLabel = new ActionListener()
-//			{
-//				@Override
-//				public void actionPerformed(ActionEvent e)
-//				{
-//					secondsElapsed[0]++;
-//					loadingLabel.setText("Loading..." 
-//					 + "[" + secondsElapsed[0] + "s]");
-//					if(secondsElapsed[0]>10) {
-//						loading.setSize(320,200);
-//						loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
-//								+ "Previous Run / OneDrive </html>");
-//						
-//					}
-//				}
-//			};
-//
-//			final Timer timer = new Timer(1000, updateLabel);
-//			timer.start();
-//			// do in background so loading can be displayed and updated
-//			SwingWorker<Void, Void> csvWorker = new SwingWorker<>()
-//			{
-//				@Override
-//				protected Void doInBackground() throws Exception
-//				{
-//					try
-//					{
-//						
-//						// TIME CONSUMING
-//						if (dateToSearch != null || iataToSearch != null || airlineToSearch != null)
-//						{
-//							populateTableWithAirport(true);
-//						}
-//						else
-//						{
-//							searchMap.clear();
-//							populateTableWithAirport(true);
-//						}
-//					} catch (Exception e)
-//					{
-//						JOptionPane.showMessageDialog(null,
-//								"Import problem:\n" + "Type:" + e.getClass().getName() + "\n" + e.getMessage());
-//						e.printStackTrace();
-//					}
-//					return null;
-//				}
-//
-//				@Override
-//				protected void done()
-//				{
-//					loading.dispose();
-//				}
-//			};
-//
-//			csvWorker.execute(); // worker.execute();
-//
-//			loading.setVisible(true);
 
 			// else no action
 		});
@@ -1150,116 +1082,176 @@ public class MainDisplayFrame extends JFrame
 						{
 							currentSortColumn = "flight_destination";
 						}
+						Runnable task = () -> {
 
-						JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
-						loading.setSize(420, 80);
-						loading.setLocationRelativeTo(null);
-						JLabel loadingLabel = new JLabel("Reording...");
-						loadingLabel.setVerticalAlignment(SwingConstants.TOP);
-						loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
-
-						int[] secondsElapsed = {0};
-						loading.setLayout(new BorderLayout());
-						loading.add(loadingLabel, BorderLayout.CENTER);
-						// Use an explicit ActionListener for Java 8 compatibility
-						ActionListener updateLabel = new ActionListener()
-						{
-							@Override
-							public void actionPerformed(ActionEvent e)
+							if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flights"))
 							{
-								secondsElapsed[0]++;
-								loadingLabel.setText("Loading..." 
-								 + "[" + secondsElapsed[0] + "s]");
-								if(secondsElapsed[0]>10) {
-									loading.setSize(320,200);
-									loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
-											+ "Previous Run / OneDrive </html>");
-									
-								}
-							}
-						};
-
-						final Timer timer = new Timer(1000, updateLabel);
-						timer.start();
-
-						//loadingLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-						loading.getContentPane().add(loadingLabel);
-						loading.pack();
-						loading.setLocationRelativeTo(null);
-						loading.setSize(250,80);
-
-						SwingWorker<Void, Void> worker = new SwingWorker<>()
-						{
-							@Override
-							protected Void doInBackground()
-							{
-
-								if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flights"))
+								if (searchActive)
 								{
-									if (searchActive)
-									{
 
-										populateTableWithFlightSearch(currentSortColumn, ascending);
-									}
-									else
-									{
-										populateTableWithAllFlights(currentSortColumn, ascending);
-									}
-
-								}
-								else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains(
-										"analysis"))
-								{
-									/*
-									 * cater for difference ebteween column identifiers and db fields
-									 */
-									if (currentSortColumn.toLowerCase().contains("delay orig"))
-									{
-										currentSortColumn = "avg_delay_orig";
-									}
-									else if (currentSortColumn.toLowerCase().contains("delay dest"))
-									{
-										currentSortColumn = "avg_delay_dest";
-									}
-									else if (currentSortColumn.toLowerCase().contains("total delay dest"))
-									{
-										currentSortColumn = "total_delay_dest";
-									}
-									else if (currentSortColumn.toLowerCase().contains("total delay orig"))
-									{
-										currentSortColumn = "total_delay_orig";
-									}
-									else if (currentSortColumn.toLowerCase().contains("most_airline"))
-									{
-										currentSortColumn = "most_frequent";
-									}
-									else if (currentSortColumn.toLowerCase().contains("least_airline"))
-									{
-										currentSortColumn = "least_frequent";
-									}
-
-									populateTableWithAirport(true);
-								}
-								else if (!searchActive)
-								{
-									populateTableWithAirport(false);
+									populateTableWithFlightSearch(currentSortColumn, ascending);
 								}
 								else
 								{
-									populateBasicTableWithAirport();
+									populateTableWithAllFlights(currentSortColumn, ascending);
 								}
-								return null;
-							}
 
-							@Override
-							protected void done()
+							}
+							else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains(
+									"analysis"))
 							{
-								loading.dispose(); // close the popup
-							}
-						};
+								/*
+								 * cater for difference ebteween column identifiers and db fields
+								 */
+								if (currentSortColumn.toLowerCase().contains("delay orig"))
+								{
+									currentSortColumn = "avg_delay_orig";
+								}
+								else if (currentSortColumn.toLowerCase().contains("delay dest"))
+								{
+									currentSortColumn = "avg_delay_dest";
+								}
+								else if (currentSortColumn.toLowerCase().contains("total delay dest"))
+								{
+									currentSortColumn = "total_delay_dest";
+								}
+								else if (currentSortColumn.toLowerCase().contains("total delay orig"))
+								{
+									currentSortColumn = "total_delay_orig";
+								}
+								else if (currentSortColumn.toLowerCase().contains("most_airline"))
+								{
+									currentSortColumn = "most_frequent";
+								}
+								else if (currentSortColumn.toLowerCase().contains("least_airline"))
+								{
+									currentSortColumn = "least_frequent";
+								}
 
-						worker.execute();
-						loading.setVisible(true);
+								populateTableWithAirport(true);
+							}
+							else if (!searchActive)
+							{
+								populateTableWithAirport(false);
+							}
+							else
+							{
+								populateBasicTableWithAirport();
+							}
+
+						}; // runnable task
+						
+						runWithLoadingLabel(task, null, "Reording...");
+						
+//						JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
+//						loading.setSize(420, 80);
+//						loading.setLocationRelativeTo(null);
+//						JLabel loadingLabel = new JLabel("Reording...");
+//						loadingLabel.setVerticalAlignment(SwingConstants.TOP);
+//						loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
+//
+//						int[] secondsElapsed = {0};
+//						loading.setLayout(new BorderLayout());
+//						loading.add(loadingLabel, BorderLayout.CENTER);
+//						// Use an explicit ActionListener for Java 8 compatibility
+//						ActionListener updateLabel = new ActionListener()
+//						{
+//							@Override
+//							public void actionPerformed(ActionEvent e)
+//							{
+//								secondsElapsed[0]++;
+//								loadingLabel.setText("Loading..." 
+//								 + "[" + secondsElapsed[0] + "s]");
+//								if(secondsElapsed[0]>10) {
+//									loading.setSize(320,200);
+//									loadingLabel.setText("<html>"+loadingLabel.getText()+"<br> Quite slow, check other processes for acccess to db. <br>"
+//											+ "Previous Run / OneDrive </html>");
+//									
+//								}
+//							}
+//						};
+//
+//						final Timer timer = new Timer(1000, updateLabel);
+//						timer.start();
+//
+//						//loadingLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+//						loading.getContentPane().add(loadingLabel);
+//						loading.pack();
+//						loading.setLocationRelativeTo(null);
+//						loading.setSize(250,80);
+//
+//						SwingWorker<Void, Void> worker = new SwingWorker<>()
+//						{
+//							@Override
+//							protected Void doInBackground()
+//							{
+//
+//								if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flights"))
+//								{
+//									if (searchActive)
+//									{
+//
+//										populateTableWithFlightSearch(currentSortColumn, ascending);
+//									}
+//									else
+//									{
+//										populateTableWithAllFlights(currentSortColumn, ascending);
+//									}
+//
+//								}
+//								else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains(
+//										"analysis"))
+//								{
+//									/*
+//									 * cater for difference ebteween column identifiers and db fields
+//									 */
+//									if (currentSortColumn.toLowerCase().contains("delay orig"))
+//									{
+//										currentSortColumn = "avg_delay_orig";
+//									}
+//									else if (currentSortColumn.toLowerCase().contains("delay dest"))
+//									{
+//										currentSortColumn = "avg_delay_dest";
+//									}
+//									else if (currentSortColumn.toLowerCase().contains("total delay dest"))
+//									{
+//										currentSortColumn = "total_delay_dest";
+//									}
+//									else if (currentSortColumn.toLowerCase().contains("total delay orig"))
+//									{
+//										currentSortColumn = "total_delay_orig";
+//									}
+//									else if (currentSortColumn.toLowerCase().contains("most_airline"))
+//									{
+//										currentSortColumn = "most_frequent";
+//									}
+//									else if (currentSortColumn.toLowerCase().contains("least_airline"))
+//									{
+//										currentSortColumn = "least_frequent";
+//									}
+//
+//									populateTableWithAirport(true);
+//								}
+//								else if (!searchActive)
+//								{
+//									populateTableWithAirport(false);
+//								}
+//								else
+//								{
+//									populateBasicTableWithAirport();
+//								}
+//								return null;
+//							}
+//
+//							@Override
+//							protected void done()
+//							{
+//								loading.dispose(); // close the popup
+//							}
+//						};
+//
+//						worker.execute();
+//						loading.setVisible(true);
 
 					}
 					// else
