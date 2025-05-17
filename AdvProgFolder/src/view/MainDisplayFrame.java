@@ -69,8 +69,10 @@ public class MainDisplayFrame extends JFrame
 	 * -----------Members-------------------------------------
 	 * -------------------------------------------------------
 	 */
-
+	
 	private static final long					serialVersionUID		= -5786420551398119288L;
+	private final Color                         highlightColour         = new Color(245,245,240);
+	
 	private final String						APP_TITLE				= "Flight Analyser";
 	private final int							PAGE_SIZE				= 50;
 	private int									airportFullPageSize		= 20;
@@ -97,14 +99,14 @@ public class MainDisplayFrame extends JFrame
 
 	private JPanel										userFuncPanel;
 
+	// for restrictinmg input to numbers
 	private Comparator<Object>					numericComparator		= (o1, o2) ->
 	{
 		try
 		{
-			int i1 = Integer.parseInt(
-					o1.toString().split("\\.")[0]);
-			int i2 = Integer.parseInt(
-					o2.toString().split("\\.")[0]);
+			int i1 = Integer.parseInt(	o1.toString().split("\\.")[0]);
+			int i2 = Integer.parseInt(  o2.toString().split("\\.")[0]);
+			
 			return Integer.compare(i1, i2);
 		} catch (NumberFormatException e)
 		{
@@ -166,7 +168,7 @@ public class MainDisplayFrame extends JFrame
 	private String								dateToSearch			= null;
 	private String								iataToSearch			= null;
 	private String								airlineToSearch			= null;
-
+ 
 
 	/*
 	 * ------------------------------------
@@ -180,8 +182,8 @@ public class MainDisplayFrame extends JFrame
 	// sort
 	public boolean								ascending				= true;
 
-	public boolean										searchActive			= false;
-	public Map<String, String>							searchMap				= new HashMap<>();
+	public boolean								searchActive			= false;
+	public Map<String, String>					searchMap				= new HashMap<>();
 	private JScrollPane scrollPane;
 
 	public CardLayout							cardLayout;
@@ -261,7 +263,7 @@ public class MainDisplayFrame extends JFrame
 		mainPanel = new JPanel(cardLayout);
 
 		/*
-		 * ---popualte user function area panel
+		 * ---populate user function area panel
 		 */
 		userFuncPanel = new JPanel();
 		userFuncPanel.add(viewSelectorComboBox); // combobox
@@ -336,7 +338,7 @@ public class MainDisplayFrame extends JFrame
 
 		populateTableWithFlightSearch(sortBy, ascending);
 	}
-	private final Color highlightColour = new Color(245,245,240);
+	
 	/**
 	 * Populate the table based off all flights in the database
 	 *
@@ -1154,14 +1156,14 @@ public class MainDisplayFrame extends JFrame
 						}; // runnable task
 						
 						runWithLoadingLabel(task, null, "Reording...");
-					}
-					// else
-					// if not contains 'line'
+					
+					}// selected contains 'line'
+					
 				} // colukmn index > 0
-			}
+			}// mouse event
 
-		});
-	}
+		});// add mouse listener
+	}// set header listener
 
 	/**
 	 * Set action listener for the view options to handle table updates and
@@ -1191,55 +1193,57 @@ public class MainDisplayFrame extends JFrame
 
 					String selectedItem = (String) e.getItem();
 					tableModel.setRowCount(0);
-					 Runnable task = () -> {
-						 if (selectedItem.toLowerCase().contains("airline"))
-							{
-								setAirlinePanel(); // set function buttons
+					Runnable task = () ->
+					{
+						if (selectedItem.toLowerCase().contains("airline"))
+						{
+							setAirlinePanel(); // set function buttons
+								
+							populateTableWithAirline();
 
-								populateTableWithAirline();
+							// need numeric instead string sorter for number fields
 
-								// need numeric instead string sorter for number fields
+							TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
+							sorter.setComparator(4, numericComparator);// num flights
+							sorter.setComparator(3, numericComparator);// total delay
+							sorter.setComparator(2, numericComparator);// avg delay
+							table.setRowSorter(sorter);
+						}
+						else if (selectedItem.toLowerCase().contains("flights"))
+						{
+							setFlightsPanel(); // set function buttons
+							
+							currentSortColumn = "date";
 
-								TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
-								sorter.setComparator(4, numericComparator);// num flights
-								sorter.setComparator(3, numericComparator);// total delay
-								sorter.setComparator(2, numericComparator);// avg delay
-								table.setRowSorter(sorter);
-							}
-							else if (selectedItem.toLowerCase().contains("flights"))
-							{
-								setFlightsPanel(); // set function buttons
+							sorter.setComparator(0, numericComparator);// Flight id
+							populateTableWithAllFlights(currentSortColumn, true);
+							TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
 
-								currentSortColumn = "date";
+							sorter.setComparator(11, numericComparator);// incorrect is airline code
+						}
+						else if (selectedItem.toLowerCase().contains("analysis"))
+						{
 
-								sorter.setComparator(0, numericComparator);// Flight id
-								populateTableWithAllFlights(currentSortColumn, true);
-								TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
+							setAirportFullPanel();
 
-								sorter.setComparator(11, numericComparator);// incorrect is airline code
-							}
-							else if (selectedItem.toLowerCase().contains("analysis"))
-							{
+							populateTableWithAirport(true); // the time consuming operation
 
-								setAirportFullPanel();
+							TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
+							table.setRowSorter(sorter);
+							sorter.setComparator(2, numericComparator);
+							sorter.setComparator(3, numericComparator);
+						}
+						else if(selectedItem.toLowerCase().contains("basic"))
+						{
+							setAirportBasicPanel();
+							populateTableWithAirport(false);
 
-								populateTableWithAirport(true); // the time consuming operation
-
-								TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
-								table.setRowSorter(sorter);
-								sorter.setComparator(2, numericComparator);
-								sorter.setComparator(3, numericComparator);
-							}
-							else if(selectedItem.toLowerCase().contains("basic"))
-							{
-								setAirportBasicPanel();
-								populateTableWithAirport(false);
-
-							}
-							else{
-								setDelayPanel();
-							}
-			            };
+						}
+						else{
+							setDelayPanel();
+						}
+						
+		            };// runnable
 			            
 					runWithLoadingLabel(task, e, "Loading...");
 					
@@ -1518,7 +1522,6 @@ public class MainDisplayFrame extends JFrame
 		csvWorker.execute(); // worker.execute();
 		loading.setVisible(true);
 		
-	}// void run with loading
-	
+	}// void run with loadin
 	
 }
