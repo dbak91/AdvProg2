@@ -13,13 +13,10 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -27,7 +24,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -47,14 +43,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.general.DefaultPieDataset;
 
-import model.DataDAO;
-import model.DataDAO.AirlineWithData;
-import model.DataDAO.Airport;
 import model.DataDAO.FlightWithDelay;
 
 /**
@@ -72,26 +62,24 @@ public class MainDisplayFrame extends JFrame
 	 */
 
 	private static final long					serialVersionUID		= -5786420551398119288L;
-	private final Color                         highlightColour         = new Color(245,245,240);
 
 	private final String						APP_TITLE				= "Flight Analyser";
-	private final int							PAGE_SIZE				= 50;
-	private int									airportFullPageSize		= 20;
+
 	private final int							AIRPORT_FULL_FIELD_SIZE	= 8;
-	private int									currentPage				= 0;
+	public int									currentPage				= 0;
 	private CustomTableModel					tableModel;
 	private JLabel								pageLabel;
-	private JTable								table;
+	public CustomJTable								table;
 	private TableRowSorter<DefaultTableModel>	sorter;
 
 	/**
 	 * The whole display
 	 */
-	private JPanel fullPanel ;
+	public JPanel fullPanel ;
 	private JButton								prevBtn					= new JButton("Previous");
-	private ChartPanel delayPiePanel;
+	public ChartPanel delayPiePanel;
 	private JButton								nextBtn					= new JButton("Next");
-	private Map<Integer, FlightWithDelay>				rowFlightMap			= new HashMap<>();
+	public Map<Integer, FlightWithDelay>				rowFlightMap			= new HashMap<>();
 	private String[]									viewOptions				= new String[]
 			{
 					"Flights",
@@ -120,59 +108,11 @@ public class MainDisplayFrame extends JFrame
 		}
 	};
 
-	private String[]								flightColumns			= new String[]
-			{
-					"Flight ID",
-					"Date",
-					"Airline Code",
-					"Flight Number",
-					"Origin",
-					"Destination",
-					"Scheduled Departure",
-					"Actual Departure",
-					"Scheduled Arrival",
-					"Actual Arrival",
-					"Delay Reason",
-					"Delay Time(Total)"
-
-			};
-
-	private String[]								airportColumns			=
-		{
-				"iata_code",
-				"name",
-				"Avg Delay Orig",
-				"Total Delay Orig",
-				"Avg Delay Dest",
-				"Total Delay Dest",
-				"Most Airline",
-				"Least Airline",
-				"Total Flights"
-		};
-	private String[]								airlineColumns			=
-		{
-				"iata_code",
-				"name",
-				"Avg Delay",
-				"Total Delay",
-				"Num Flights"
-		};
-
-	private String[]								airportMinColumns		=
-		{
-				"iata_code",
-				"name",
-				"Flights"
-		};
-
-	private String								searchType				= "";
-	private String								searchTerm				= "";
-
 
 	// tested for none null to activate search filters
-	private String								dateToSearch			= null;
-	private String								iataToSearch			= null;
-	private String								airlineToSearch			= null;
+	public String								dateToSearch			= null;
+	public String								iataToSearch			= null;
+	public String								airlineToSearch			= null;
 
 
 	/*
@@ -189,7 +129,7 @@ public class MainDisplayFrame extends JFrame
 
 	public boolean								searchActive			= false;
 	public Map<String, String>					searchMap				= new HashMap<>();
-	private JScrollPane scrollPane;
+	public JScrollPane scrollPane;
 
 	public CardLayout							cardLayout;
 
@@ -243,7 +183,7 @@ public class MainDisplayFrame extends JFrame
 
 		// prevent editing
 		tableModel = new CustomTableModel();
-		table = new JTable(tableModel);
+		table = new CustomJTable(tableModel,this);
 
 		// instantiate now we have a new table model
 		sorter = new TableRowSorter<>(tableModel);
@@ -280,7 +220,7 @@ public class MainDisplayFrame extends JFrame
 		prevBtn.addActionListener(new PageButtonActionListener("prev"));
 		nextBtn.addActionListener(new PageButtonActionListener("next"));
 		currentSortColumn = "date";
-		populateTableWithAllFlights(currentSortColumn, true);
+		table.populateTableWithAllFlights(currentSortColumn, true);
 
 		// Control panel for pagination
 		JPanel pageControlPanel = new JPanel();
@@ -294,307 +234,14 @@ public class MainDisplayFrame extends JFrame
 		mainPanel.add(new FullSearchPanel(this), "FULL_SEARCH"); // extra view
 
 		setViewSelectorListener(); // set listener to switch tables/panels/view when choosing options
-		setTableRowListener();
-		setTableHeaderListener();
+		table.setTableRowListener();
+		table.setTableHeaderListener();
 
 		add(mainPanel);
 	}
-	/*
-	 * -------------------------------------------------------
-	 * -----------Populate tables with------------------------
-	 * -------------------------------------------------------
-	 *  - Flights
-	 *  - Airline
-	 *  - Airport
-	 *  -------------------------------------------------------
-	 */
-
-	/**
-	 * Takes a single search term and a type and populates the Flight table based on
-	 * results
-	 *
-	 * @param type the database Flight field to search (column) e.g. "flight_id"
-	 * @param term the term to match with LIKE
-	 *
-	 */
-	public void populateTableWithSingleSearchTerm(String type, String term, String sortBy, boolean ascending)
-	{
-		System.err.println("pop with single search " + type + ":" + term);
-		this.searchType = type;
-		this.searchTerm = term;
-
-		searchMap = new HashMap<>();
-
-		searchMap.put(searchType, searchTerm);
-
-		populateTableWithFlightSearch(sortBy, ascending);
-	}
-
-	/**
-	 * Populate the table based off all flights in the database
-	 *
-	 * @param sortBy    database field to sort returned results from e.g. "date"
-	 * @param ascending true or false, converted to ASC/DESC in SQL.
-	 */
-	public void populateTableWithAllFlights(String sortBy, boolean ascending)
-	{
-		searchActive = false;
-		tableModel.setColumnIdentifiers(flightColumns, table);
-
-		//total time column highlight
-
-		table.getColumnModel().getColumn(2).setCellRenderer(new CustomColumnColorRenderer(highlightColour));
-
-		table.getColumnModel().getColumn(4).setCellRenderer(new CustomColumnColorRenderer(highlightColour));
-
-		table.getColumnModel().getColumn(5).setCellRenderer(new CustomColumnColorRenderer(highlightColour));
-		table.getColumnModel().getColumn(10).setCellRenderer(new CustomColumnColorRenderer(highlightColour)); //reason
-		table.getColumnModel().getColumn(11).setCellRenderer(new CustomColumnColorRenderer(highlightColour));// total delay
-		try (DataDAO dataAccess = new DataDAO();)
-		{
-			// flightAccess = new FlightDAO();
-			try
-			{
-				if (searchMap.containsKey("flight id"))
-				{
-					System.err.println("should go hgere change to fsort by flight id");
-				}
-				// flightAccess = new FlightDAO();
-				List<FlightWithDelay> flights = dataAccess.getAllFlights(currentPage, PAGE_SIZE, sortBy, ascending);
-
-				tableModel.setRowsFromFlights(flights, rowFlightMap);
-			} catch (SQLException e)
-			{
-				System.err.println("Error populating tablke in populatweTableWithMain");
-				e.printStackTrace();
-			}
-		} catch (Exception e)
-		{
-			JOptionPane.showMessageDialog(null,
-					"Database connection failed:\n" + e.getMessage(),
-					"Connection Error",
-					JOptionPane.ERROR_MESSAGE);
-			System.err.println("Error creating flight dao, (connecting to db)");
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Populate table with all flights matching searchMap contents
-	 *
-	 * @param sortBy    database field to sort returned results from e.g. "date"
-	 * @param ascending true or false, converted to ASC/DESC in SQL.
-	 */
-	public void populateTableWithFlightSearch(String sortBy, boolean ascending)
-	{
-		System.out.println("pop with search");
-		searchActive = true;
-		try (DataDAO dataAccess = new DataDAO())
-		{
-			// Map<String,String> search = new HashMap<>();
-			List<FlightWithDelay> flights = dataAccess.getFlightBySearch(searchMap,
-					currentPage,
-					PAGE_SIZE,
-					sortBy,
-					ascending);
-
-			tableModel.setRowsFromFlights(flights, rowFlightMap);
-		} catch (SQLException e)
-		{
-			System.err.println("Error populating ");
-			e.printStackTrace();
-
-		} catch (Exception f)
-		{
-			System.err.println("Error from creating flight dao, populatWithSearch");
-			f.printStackTrace();
-		}
-	}
-
-	/**
-	 * Populates table with all airlines matching searchMap contents
-	 */
-	private void populatePieChartWithDelays(){
-		DataDAO dataAccess;
-		try
-		{
-			dataAccess = new DataDAO();
-			Map<String,Integer> delayList = dataAccess.getAllDelaysWithCount();
-
-			//System.err.println("count of sec"+ delayList.get("carrier"));
 
 
-			DefaultPieDataset dataset = new DefaultPieDataset();
-			for (Map.Entry<String, Integer> entry :delayList.entrySet())
-			{
-				dataset.setValue(entry.getKey(), entry.getValue());
-			}
 
-
-			JFreeChart pieChart = ChartFactory.createPieChart(
-					"Delay Distribution",
-					dataset,
-					true, true, false  );
-
-			fullPanel.remove(scrollPane);
-			delayPiePanel = new ChartPanel(pieChart);
-			fullPanel.add(delayPiePanel);
-
-		} catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-
-	/**
-	 * Set the table to contain airline data
-	 *
-	 *  retrieves all airlines matching searchMap criteria and applied to table
-	 */
-	public void populateTableWithAirline()
-	{
-		try
-		{
-			System.out.println("popuylatewithairlines");
-
-			DataDAO dataAccess = new DataDAO();
-
-			List<AirlineWithData> airlines = dataAccess.getAirlines(searchMap);
-
-			// setColumnsFromAirLines(airlines);
-
-
-			tableModel.setRowCount(0); // This will remove all existing rows
-
-
-			tableModel.setColumnIdentifiers(airlineColumns, table);
-
-			table.getColumnModel().getColumn(4).setCellRenderer(new CustomColumnColorRenderer(highlightColour)); // total flights
-			table.getColumnModel().getColumn(2).setCellRenderer(new CustomColumnColorRenderer(highlightColour)); // avg delay
-			tableModel.setRowsFromAirlines(airlines);
-			// Create the JTable with the table model
-
-			dataAccess.close();
-		} catch (SQLException e)
-		{
-			e.printStackTrace();
-
-		} catch (Exception f)
-		{
-			f.printStackTrace();
-		}
-	}
-
-	/**
-	 * Populates either the full analysis table or basic flight count table with all
-	 * airports matching the searchMap content, will also set the correct basic/full
-	 * column headers
-	 *
-	 * @param fullDisplay true for full anlysis, false for basic flight count
-	 */
-	public void populateTableWithAirport(boolean fullDisplay)
-	{
-
-		try (DataDAO dataAccess = new DataDAO())
-		{
-			List<Airport> airports;
-			if (fullDisplay)
-			{
-				System.out.println("fulldisplay");
-				searchMap = new HashMap<>();
-				searchMap.put("iata", iataToSearch);
-				searchMap.put("date", dateToSearch);
-				searchMap.put("airline", airlineToSearch);
-				tableModel.setColumnIdentifiers(airportColumns, table);
-				table.getColumnModel().getColumn(2).setCellRenderer(new CustomColumnColorRenderer(highlightColour)); // delay orig
-				table.getColumnModel().getColumn(4).setCellRenderer(new CustomColumnColorRenderer(highlightColour)); // delay dest
-				table.getColumnModel().getColumn(8).setCellRenderer(new CustomColumnColorRenderer(highlightColour)); // total flights
-				airports = dataAccess.searchAirports(searchMap,
-						currentPage,
-						airportFullPageSize,
-						currentSortColumn,
-						ascending);
-				tableModel.setRowCount(0); // This will remove all existing rows, maynot be needed now, setcolumnIdent
-				// now resets rows
-
-				tableModel.setRowsFromAirport(airports);
-			}
-			else
-			{
-				System.out.println("basic");
-				if (currentSortColumn.equals("date"))
-				{
-					currentSortColumn = "a.iata_code";
-				}
-				System.out.println("poplatewithairpors, sortby: " + currentSortColumn);
-				tableModel.setColumnIdentifiers(airportMinColumns, table);
-				table.getColumnModel().getColumn(2).setCellRenderer(new CustomColumnColorRenderer(highlightColour));
-				airports = dataAccess.getAllAirports(currentPage, PAGE_SIZE, currentSortColumn, ascending);
-				tableModel.setRowCount(0); // This will remove all existing rows, may not be needed here, column clears
-				// row
-
-				tableModel.setRowsFromAirport(airports);
-
-			}
-
-		} catch (SQLException e)
-		{
-			e.printStackTrace();
-
-		} catch (Exception f)
-		{
-			f.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * Populates the basic only table with airport matching the searchMap content
-	 * (can be made redundant by using the other airport populate function)
-	 *
-	 * <p>
-	 * No need for handling of which panel is selected, only called on
-	 * </p>
-	 *
-	 * <p>
-	 * Handling of min/max fields is left to DAO/SQL layer
-	 * </p>
-	 */
-	private void populateBasicTableWithAirport()
-
-	{
-
-		tableModel.setRowCount(0); // This will remove all existing rows
-		try (DataDAO dataAccess = new DataDAO())
-		{
-			List<Airport> airports;
-			// if previously defaulted, setcto an airport specfic column
-			if (currentSortColumn.equals("date"))
-			{
-				currentSortColumn = "iata_code";
-			}
-			System.out.println("fulldisplayM<inMax");
-			airports = dataAccess.getBasicAirports(searchMap, currentPage, PAGE_SIZE, currentSortColumn, ascending);
-
-			System.out.println("basic");
-			tableModel.setColumnIdentifiers(airportMinColumns, table);
-			table.getColumnModel().getColumn(2).setCellRenderer(new CustomColumnColorRenderer(highlightColour)); // flight count
-			tableModel.setRowsFromAirport(airports);
-			// flightAccess.close();
-
-		} catch (SQLException e)
-		{
-			e.printStackTrace();
-
-		} catch (Exception f)
-		{
-			f.printStackTrace();
-		}
-
-	}
 
 	/*
 	 * -------------------------------------------------------
@@ -614,7 +261,7 @@ public class MainDisplayFrame extends JFrame
 	private void setDelayPanel() {
 		userFuncPanel.removeAll();
 		userFuncPanel.add(viewSelectorComboBox);
-		populatePieChartWithDelays();
+		table.populatePieChartWithDelays();
 		userFuncPanel.revalidate();
 		userFuncPanel.repaint();
 	}
@@ -657,7 +304,7 @@ public class MainDisplayFrame extends JFrame
 			if (!yearField.getText().isEmpty())
 			{
 				System.out.println("working");
-				populateTableWithAirline();
+				table.populateTableWithAirline();
 			}
 
 		});
@@ -757,14 +404,14 @@ public class MainDisplayFrame extends JFrame
 			searchActive = added;
 			if (searchActive)
 			{
-				populateBasicTableWithAirport();
+				table.populateBasicTableWithAirport();
 
 			}
 			else
 			{
 				// System.err.println("not calling anything on search pressed");
 				searchMap.clear();
-				populateTableWithAirport(false);
+				table.populateTableWithAirport(false);
 			}
 		});
 
@@ -891,7 +538,7 @@ public class MainDisplayFrame extends JFrame
 
 			if (!pageField.getText().isEmpty())
 			{
-				airportFullPageSize = Integer.parseInt(pageField.getText());
+				table.airportFullPageSize = Integer.parseInt(pageField.getText());
 			}
 
 			// do in backgreoeund to allow progress button
@@ -902,12 +549,12 @@ public class MainDisplayFrame extends JFrame
 				// TIME CONSUMING
 				if (dateToSearch != null || iataToSearch != null || airlineToSearch != null)
 				{
-					populateTableWithAirport(true);
+					table.populateTableWithAirport(true);
 				}
 				else
 				{
 					searchMap.clear();
-					populateTableWithAirport(true);
+					table.populateTableWithAirport(true);
 				}
 			};
 
@@ -925,7 +572,7 @@ public class MainDisplayFrame extends JFrame
 		userFuncPanel.add(recalcBtn);
 
 		userFuncPanel.add(new JLabel("Page Size:"));
-		pageField.setText(""+airportFullPageSize);
+		pageField.setText(""+table.airportFullPageSize);
 		userFuncPanel.add(pageField);
 
 		userFuncPanel.revalidate(); // Recalculates the layout
@@ -947,16 +594,16 @@ public class MainDisplayFrame extends JFrame
 		JLabel termLabel = new JLabel("Search:");
 		JTextField term = new JTextField(20); // set size to roughly 20 characters
 		JLabel in = new JLabel("In:");
-		String[] dropdownOptions = new String[flightColumns.length + 1];
+		String[] dropdownOptions = new String[table.flightColumns.length + 1];
 		dropdownOptions[0] = "All";
-		System.arraycopy(flightColumns, 0, dropdownOptions, 1, flightColumns.length);
+		System.arraycopy(table.flightColumns, 0, dropdownOptions, 1, table.flightColumns.length);
 		JComboBox<String> columnDropdown = new JComboBox<>(dropdownOptions);
 
 		JButton searchBtn = new JButton("Search");
 		searchBtn.addActionListener(e ->
 		{
 			// searchType=;
-			searchTerm = term.getText();
+			//	searchTerm = term.getText();
 			String realColumnName = columnDropdown.getSelectedItem().toString().toLowerCase();
 			if (realColumnName.toLowerCase().equals("origin"))
 			{
@@ -965,7 +612,7 @@ public class MainDisplayFrame extends JFrame
 			System.out.println(
 					"type " + columnDropdown.getSelectedItem().toString().toLowerCase() + " term " + term.getText());
 			Runnable task = ()-> {
-				populateTableWithSingleSearchTerm(columnDropdown.getSelectedItem().toString().toLowerCase(),
+				table.populateTableWithSingleSearchTerm(columnDropdown.getSelectedItem().toString().toLowerCase(),
 						term.getText(),
 						currentSortColumn,
 						true);
@@ -1004,217 +651,11 @@ public class MainDisplayFrame extends JFrame
 	 * -------------------------------------------------------
 	 */
 
-	private void setTableRowListener()
-	{
 
-		table.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(MouseEvent e)
-			{
-				if(viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flight"))
-				{
-
-					int rowClicked = table.rowAtPoint(e.getPoint());
-
-					if (rowClicked >= 0 && e.getClickCount() == 1) // row count for?
-					{
-						// Example: get column data from the model
-
-						int scheduled = (int) table.getValueAt(rowClicked,6);
-						int actual = (int) table.getValueAt(rowClicked,7);
-
-						int departureDelay = getDelay(scheduled,actual);
-
-						scheduled = (int) table.getValueAt(rowClicked,8);
-						actual = (int) table.getValueAt(rowClicked,9);
-
-						int arrivalDelay = getDelay(scheduled,actual);
-						//String cellData1 = (String) table.getValueAt(rowClicked, 0); // column 0
-						//String cellData2 = (String) table.getValueAt(rowClicked, 1); // column 1
-
-						int dueDelay = arrivalDelay-departureDelay;
-						String message = "Airline: " + table.getValueAt(rowClicked,2)
-						+ "\n Departure delay: " + (departureDelay > 0? "+":"") + departureDelay + " minutes"
-						+ "\n Arrival delay: " + (arrivalDelay > 0? "+":"") + arrivalDelay + " minutes"
-						+ "\n Reason: " + table.getValueAt(rowClicked,10)
-						+ "\n In flight adjustment: " + (dueDelay > 0? "+":"") + dueDelay + " minutes";
-
-
-
-						JOptionPane.showMessageDialog(table, message, "Flight Information", JOptionPane.INFORMATION_MESSAGE);
-					}
-				}// if flight
-
-			}//mouse clciked override
-
-			private int getDelay(int scheduled, int actual)
-			{
-				// TODO Auto-generated method stub
-				int scheduledHours = scheduled / 100; // 12
-				int scheduledMinutes = scheduled % 100; // 45
-
-				int actualHours = actual / 100; // 13
-				int actualMinutes = actual % 100; // 55
-
-				int scheduledTotalMinutes = scheduledHours * 60 + scheduledMinutes; // 12*60 + 45 = 765
-				int actualTotalMinutes = actualHours * 60 + actualMinutes; // 13*60 + 55 = 835
-
-				return actualTotalMinutes - scheduledTotalMinutes;
-			}//get delay
-		});// add listener
-	}//setTableRowListener
 	/**
 	 * Action listener for special sorting actions on clicking column headers i.e.
 	 * recall populateTableWith... to request a new 'sort order' and and 'sort by' returned from db
 	 */
-	private void setTableHeaderListener()
-	{
-		table.getTableHeader().addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(MouseEvent e)
-			{
-				System.err.println("mouse clicked on header");
-				int columnIndex = table.columnAtPoint(e.getPoint());
-				if (columnIndex >= 0)
-				{
-					String columnName = table.getColumnName(columnIndex);
-					// currentSortColumn = columnName.toLowerCase().replace("
-					// ", "_");
-					// Convert display name to database field name (e.g., Flight
-					// ID -> flight_id)
-					String selectedColumn = columnName.toLowerCase().replace(" ", "_");
-					String order = ascending ? "ASC" : "DESC";
-					System.out.println("was " + order + "now opposite");
-
-					ascending = !ascending;
-					// Toggle order if same column clicked
-
-					currentSortColumn = selectedColumn;
-
-					currentPage = 0;
-					JTableHeader header = table.getTableHeader();
-					TableColumnModel colModel = header.getColumnModel();
-					/*
-					 * FUTURE OVERSITE would be missing re populate call by airlines returning >50,
-					 * currently okay only 18 in db
-					 *
-					 */
-
-					//restricting to non-airline selected
-					if (!viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("line"))
-					{
-						for (int i = 0; i < colModel.getColumnCount(); i++)
-						{
-							String baseName = flightColumns[i];
-							String displayName = baseName;
-
-							String columnId = baseName.toLowerCase().replace(" ", "_");
-							if (columnId.equals(currentSortColumn))
-							{
-								displayName += ascending ? " ▲" : " ▼";
-								System.out.println(displayName);
-							}
-
-							colModel.getColumn(i).setHeaderValue(displayName);
-						}
-						// Call once after all updates
-						table.getTableHeader().revalidate();
-						table.getTableHeader().repaint();
-						header.repaint();
-
-						// tableModel.setRowCount(0);
-
-						// cater for difference in headers vs sql table/columns
-						if (selectedColumn.toLowerCase().contains("origin"))
-						{
-							currentSortColumn = "flight_origin";
-						}
-						if (selectedColumn.toLowerCase().contains("flights"))
-						{
-							currentSortColumn = "flight_count";
-						}
-						if (selectedColumn.toLowerCase().contains("delay_reason"))
-						{
-							currentSortColumn = "reason";
-						}
-						if (selectedColumn.toLowerCase().contains("time"))
-						{
-							currentSortColumn = "delay_length";
-						}
-						if (selectedColumn.toLowerCase().contains("destination"))
-						{
-							currentSortColumn = "flight_destination";
-						}
-						Runnable task = () -> {
-
-							if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flights"))
-							{
-								if (searchActive)
-								{
-
-									populateTableWithFlightSearch(currentSortColumn, ascending);
-								}
-								else
-								{
-									populateTableWithAllFlights(currentSortColumn, ascending);
-								}
-
-							}
-							else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains(
-									"analysis"))
-							{
-								/*
-								 * cater for difference ebteween column identifiers and db fields
-								 */
-								if (currentSortColumn.toLowerCase().contains("delay orig"))
-								{
-									currentSortColumn = "avg_delay_orig";
-								}
-								else if (currentSortColumn.toLowerCase().contains("delay dest"))
-								{
-									currentSortColumn = "avg_delay_dest";
-								}
-								else if (currentSortColumn.toLowerCase().contains("total delay dest"))
-								{
-									currentSortColumn = "total_delay_dest";
-								}
-								else if (currentSortColumn.toLowerCase().contains("total delay orig"))
-								{
-									currentSortColumn = "total_delay_orig";
-								}
-								else if (currentSortColumn.toLowerCase().contains("most_airline"))
-								{
-									currentSortColumn = "most_frequent";
-								}
-								else if (currentSortColumn.toLowerCase().contains("least_airline"))
-								{
-									currentSortColumn = "least_frequent";
-								}
-
-								populateTableWithAirport(true);
-							}
-							else if (!searchActive)
-							{
-								populateTableWithAirport(false);
-							}
-							else
-							{
-								populateBasicTableWithAirport();
-							}
-
-						}; // runnable task
-
-						runWithLoadingLabel(task, null, "Reording...");
-
-					}// selected contains 'line'
-
-				} // colukmn index > 0
-			}// mouse event
-
-		});// add mouse listener
-	}// set header listener
 
 	/**
 	 * Set action listener for the view options to handle table updates and
@@ -1250,7 +691,7 @@ public class MainDisplayFrame extends JFrame
 						{
 							setAirlinePanel(); // set function buttons
 
-							populateTableWithAirline();
+							table.populateTableWithAirline();
 
 							// need numeric instead string sorter for number fields
 
@@ -1267,7 +708,7 @@ public class MainDisplayFrame extends JFrame
 							currentSortColumn = "date";
 
 							sorter.setComparator(0, numericComparator);// Flight id
-							populateTableWithAllFlights(currentSortColumn, true);
+							table.populateTableWithAllFlights(currentSortColumn, true);
 							TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
 
 							sorter.setComparator(11, numericComparator);// incorrect is airline code
@@ -1277,7 +718,7 @@ public class MainDisplayFrame extends JFrame
 
 							setAirportFullPanel();
 
-							populateTableWithAirport(true); // the time consuming operation
+							table.populateTableWithAirport(true); // the time consuming operation
 
 							TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
 							table.setRowSorter(sorter);
@@ -1287,7 +728,7 @@ public class MainDisplayFrame extends JFrame
 						else if(selectedItem.toLowerCase().contains("basic"))
 						{
 							setAirportBasicPanel();
-							populateTableWithAirport(false);
+							table.populateTableWithAirport(false);
 
 						}
 						else{
@@ -1450,26 +891,26 @@ public class MainDisplayFrame extends JFrame
 				{
 					if (searchActive)
 					{
-						populateTableWithFlightSearch(currentSortColumn, ascending);
+						table.populateTableWithFlightSearch(currentSortColumn, ascending);
 					}
 					else
 					{
-						populateTableWithAllFlights(currentSortColumn, ascending);
+						table.populateTableWithAllFlights(currentSortColumn, ascending);
 
 					}
 
 				}
 				else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("line"))
 				{
-					populateTableWithAirline();
+					table.populateTableWithAirline();
 				}
 				else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("basic"))
 				{
-					populateTableWithAirport(false);
+					table.populateTableWithAirport(false);
 				}
 				else
 				{
-					populateTableWithAirport(true);
+					table.populateTableWithAirport(true);
 					// loadFlights();
 				}
 
@@ -1485,7 +926,7 @@ public class MainDisplayFrame extends JFrame
 	/**
 	 * Extends cell renderer intended to highlight a column with the supplied colour
 	 */
-	public class CustomColumnColorRenderer extends DefaultTableCellRenderer
+	public static class CustomColumnColorRenderer extends DefaultTableCellRenderer
 	{
 		/**
 		 *

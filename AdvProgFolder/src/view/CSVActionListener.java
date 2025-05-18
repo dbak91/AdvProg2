@@ -98,25 +98,25 @@ public class CSVActionListener implements ActionListener
 							{
 
 								loadingLabel.setText("Loading...Populating Airline Table");
-								parent.populateTableWithAirline();
+								parent.table.populateTableWithAirline();
 
 							}
 							else if (parent.viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains(
 									"flights"))
 							{
 								loadingLabel.setText("Loading...Populating Flights Table");
-								parent.populateTableWithAllFlights(parent.currentSortColumn, true);
+								parent.table.populateTableWithAllFlights(parent.currentSortColumn, true);
 							}
 							else if (parent.viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains(
 									"analysis"))
 							{
 								loadingLabel.setText("Loading...Populating Airport Analysis Table");
-								parent.populateTableWithAirport(true);
+								parent.table.populateTableWithAirport(true);
 							}
 							else
 							{
 								loadingLabel.setText("Loading...Populating Airport Basic Table");
-								parent.populateTableWithAirport(false);
+								parent.table.populateTableWithAirport(false);
 
 							}
 						}

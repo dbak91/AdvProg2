@@ -380,7 +380,7 @@ public class DataDAO implements AutoCloseable
 					searchMap.put("all", all);
 				}
 
-				
+
 			}
 
 		}

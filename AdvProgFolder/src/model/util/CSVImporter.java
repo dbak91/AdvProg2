@@ -41,7 +41,7 @@ public class CSVImporter
 	private static int	DELAY_DUE_NAS_ind;
 	private static int	DELAY_DUE_SECURITY_ind;
 	private static int	DELAY_DUE_LATE_AIRCRAFT_ind;
-
+	private static long rowsSkipped = 0;
 	private static int	BATCH_SIZE	= 10000;
 
 	/**
@@ -132,11 +132,18 @@ public class CSVImporter
 				insertFlightStmnt.setInt(10,
 						fields[ARR_TIME_ind].isEmpty() ? 0 : Integer.parseInt(fields[ARR_TIME_ind].split("\\.")[0]));
 
+
 				// add batches and execute
-				if (fields[FL_NUMBER_ind].isEmpty() || fields[FL_DATE_ind].isEmpty() || fields[ORIGIN_ind].isEmpty())
+				if (fields[FL_NUMBER_ind].isEmpty() || fields[FL_DATE_ind].isEmpty() || fields[ORIGIN_ind].isEmpty() || fields[DEP_TIME_ind].isEmpty())
 				{
+					String msg = "Not added "+fields[AIRLINE_ind] + " No. " + fields[FL_NUMBER_ind] + " missing critical fields";
+					if(fields[DEP_TIME_ind].isEmpty())
+					{
+						msg += " departure time empty";
+					}
 					// do not add, invalid data
-					System.err.println("Not added row " + indexReached);
+					System.err.println(msg);
+					rowsSkipped++;
 				}
 				else
 				{
@@ -268,7 +275,9 @@ public class CSVImporter
 			}
 
 			conn.commit();
-			loadingLabel.setText("CSV imported into db, creating indexes");
+			loadingLabel.setText("CSV imported into database (rows skipped:"+rowsSkipped+")"
+					+ ". Creating indexes");
+			Thread.sleep(2000);
 			System.out.println("CSV imported into db, creating indexes");
 			DatabaseManager dbManager = new DatabaseManager();
 			dbManager.createIndexes();
