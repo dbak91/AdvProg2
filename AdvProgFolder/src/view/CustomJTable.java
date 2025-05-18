@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
@@ -24,11 +26,11 @@ import model.DataDAO.Airport;
 import model.DataDAO.FlightWithDelay;
 import view.MainDisplayFrame.CustomColumnColorRenderer;
 
+/**
+ * Extends JTable with populate row and set listener methods.  
+ */
 public class CustomJTable extends JTable
 {
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
 	MainDisplayFrame parent;
 	CustomTableModel model;
@@ -616,4 +618,50 @@ public class CustomJTable extends JTable
 		}
 
 	}// populate with airport
+	
+	/**
+	 * Extends cell renderer intended to highlight a column with the supplied colour
+	 */
+	public static class CustomColumnColorRenderer extends DefaultTableCellRenderer
+	{
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = -5707093970149887588L;
+		Color colour; //(dev note: bad effect of being a dev is now i often misspell colour with no 'u' !!! do one)
+
+
+		/**
+		 * Constructor
+		 * @param colour color to set the associated column to
+		 */
+		public CustomColumnColorRenderer(Color colour) {
+			this.colour=colour;
+		}
+
+		/**
+		 * Custom graphical object (cell/column from table), with a colour to supply.
+		 *
+		 * Sets the column/component to the supplied colour
+		 *
+		 *
+		 */
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value,
+				boolean isSelected, boolean hasFocus, int row, int column)
+		{
+
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+			if (!isSelected)
+			{
+
+				c.setBackground(colour);
+				// text readability? should it be white or black to match other columns?
+			}
+
+			return c;
+		}
+	}
+
 }

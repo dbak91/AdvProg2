@@ -50,7 +50,6 @@ import model.DataDAO.FlightWithDelay;
 /**
  * The main Frame containing the data table(analysis) and user function panels
  *
- * Monolithic, future enh. to modularise
  */
 public class MainDisplayFrame extends JFrame
 {
@@ -795,7 +794,7 @@ public class MainDisplayFrame extends JFrame
 
 		});
 
-	}
+	}// set view selector listener
 
 	/*
 	 * -------------------------------------------------------
@@ -921,52 +920,9 @@ public class MainDisplayFrame extends JFrame
 			// parse int but probably not recc.
 		}
 
-	}
+	}//page button action listner
 
-	/**
-	 * Extends cell renderer intended to highlight a column with the supplied colour
-	 */
-	public static class CustomColumnColorRenderer extends DefaultTableCellRenderer
-	{
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = -5707093970149887588L;
-		Color colour; //(dev note: bad effect of being a dev is now i often misspell colour with no 'u' !!! do one)
-
-
-		/**
-		 * Constructor
-		 * @param colour color to set the associated column to
-		 */
-		public CustomColumnColorRenderer(Color colour) {
-			this.colour=colour;
-		}
-
-		/**
-		 * Custom graphical object (cell/column from table), with a colour to supply.
-		 *
-		 * Sets the column/component to the supplied colour
-		 *
-		 *
-		 */
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value,
-				boolean isSelected, boolean hasFocus, int row, int column)
-		{
-
-			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-			if (!isSelected)
-			{
-
-				c.setBackground(colour);
-				// text readability? should it be white or black to match other columns?
-			}
-
-			return c;
-		}
-	}
+		
 	/**
 	 * Attempt at getting the repeated loading screen work in background to be defined once,
 	 *
