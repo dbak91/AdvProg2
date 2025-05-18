@@ -24,7 +24,6 @@ import model.DataDAO;
 import model.DataDAO.AirlineWithData;
 import model.DataDAO.Airport;
 import model.DataDAO.FlightWithDelay;
-import view.MainDisplayFrame.CustomColumnColorRenderer;
 
 /**
  * Extends JTable with populate row and set listener methods.  
