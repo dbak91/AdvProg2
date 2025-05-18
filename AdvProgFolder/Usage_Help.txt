@@ -7,15 +7,15 @@
 -----
 Usage
 -----
-Screen should load with clickable buttons, after the splashscreen the user can view various analysis of the flights through flights, airline, airport basic , or airport analysis tables. 
+App should load with clickable buttons, after the splashscreen the user can view various analysis of the flights and searches through flights, airline, airport basic , or airport analysis tables and a Delay Reason pie chart through the of a dropdown. 
 
 The search fields seen can be combined for more restrictive sets. 
 
 -------------
 Splash screen 
 -------------
-Create db  - Creates a database in root directory named 'flights_data.db'
-Import csv - Imports from csv format into the database. (hardcoded structure expected) 
+Create Database  - Creates a database in root directory named 'flights_data.db'
+Import CSV - Imports from csv format into the database. (hardcoded structure expected) 
              Expected location and name: 'data/flights_sample_3m.csv'
 Continue   - Continue to the main table view for flight stats and data
 
@@ -59,6 +59,8 @@ Bottom Row         - Previous/Next page buttons. Cycling backwards past zero is 
 ---------------------------------------
 CSV Format  ***************************
 ---------------------------------------
+#Format is produced from open source Https://<insertURL> reports
+
 FL_DATE,AIRLINE,AIRLINE_DOT,AIRLINE_CODE,DOT_CODE,FL_NUMBER,ORIGIN,ORIGIN_CITY,DEST,DEST_CITY,CRS_DEP_TIME,DEP_TIME,DEP_DELAY,TAXI_OUT,WHEELS_OFF,WHEELS_ON,TAXI_IN,CRS_ARR_TIME,ARR_TIME,ARR_DELAY,CANCELLED,CANCELLATION_CODE,DIVERTED,CRS_ELAPSED_TIME,ELAPSED_TIME,AIR_TIME,DISTANCE,DELAY_DUE_CARRIER,DELAY_DUE_WEATHER,DELAY_DUE_NAS,DELAY_DUE_SECURITY,DELAY_DUE_LATE_AIRCRAFT
 2019-01-09,United Air Lines Inc.,United Air Lines Inc.: UA,UA,19977,1562,FLL,"Fort Lauderdale, FL",EWR,"Newark, NJ",1155,1151.0,-4.0,19.0,1210.0,1443.0,4.0,1501,1447.0,-14.0,0.0,,0.0,186.0,176.0,153.0,1065.0,,,,,
 

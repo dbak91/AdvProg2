@@ -17,9 +17,9 @@ import model.util.CSVImporter;
  * <br>
  * Calls CSVImporter.importcsv on button pressed,
  * <ul>
- * <li>if continue button and successful sets to enabled</li>
- * <li>if frame supplied calls the populate table methods for selected view
- * options</li>
+ * <li>if 'continue button' and import successful sets to enabled</li>
+ * <li>if frame supplied and successful calls the populate table methods for selected view
+ * option e.g flights</li>
  * </ul>
  *
  * <p>
@@ -27,6 +27,7 @@ import model.util.CSVImporter;
  * or main Frame (a TableViewFrame)
  * </p>
  *
+ * 
  * @author 23751662
  */
 public class CSVActionListener implements ActionListener
@@ -37,7 +38,7 @@ public class CSVActionListener implements ActionListener
 
 	/**
 	 * Constructor (with continue button)<br>
-	 * Table frame will be null
+	 * Table frame will be set null
 	 * @param continueBtn the button to be set enabled if import successful
 	 *
 	 */
@@ -49,7 +50,7 @@ public class CSVActionListener implements ActionListener
 
 	/**
 	 * Constructor (with parent MainDisplayFrame)<br>
-	 * continue button will be null
+	 * continue button will be set null
 	 *
 	 * @param parent frame that is the parent. must have used methods
 	 */

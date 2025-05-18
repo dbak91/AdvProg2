@@ -1,19 +1,17 @@
-Source structure concept: 
+Source structure: 
 -------------------------
-- MVC: model view controller (recommended for java type)
-    model: Data
-    view: GUI components (swing)
-    controller: Run program, control objects
-    
-    
+- MVC: model-view-controller (recommended for java type)
+    Model:      Data
+    View:       GUI components (swing)
+    Controller: Run program, control objects
 
 Program structure concept:
 --------------------------
 - Main class
 - Static class for handling creation and as-a-whole interrogation of database 
 - Static class for importing csv into database
-- Classes for representing access to and forms of the data in the data base e.g. DAO
-- Classes and resources with sql create statement and queries
+- Classes for representing access to, and forms of the data, in the database i.e. DAO
+- Classes and resources with SQL create statement and queries
 - Swing extensions/implementations for custom swing components
 
 Swing structure:
@@ -26,15 +24,17 @@ Swing structure:
     - Airport Panel
     - Airline Panel Basic
     - Airline Panel Analysis
-      
+    - Delay Reason Pie chart
+
 Notes:
 ------
-- Spec mentioned graphs. Developer is severely colour blind and avoids graphical representation as much as possible, preferring tables and data. However deep analysis and complex search restriction on the database is performed (see Airport analysis tab) 
+- Spec mentioned graphs. Developer is severely colour blind and avoids graphical representation as much as possible, preferring tables and data. However deep analysis and complex search restrictions on the database are performed (see Airport analysis tab) 
 - No custom exceptions. 
 - Could be made wholly object oriented but not necessary for the function type of the static classes.
-- Silent exceptions were seen to propagate with no functionality pickup (i.e. unexpected), endeavoured to fix. 
+- Silent exceptions were seen to propagate with no functionality pickup during dev (i.e. unexpected), endeavoured to fix. 
+
 
 Citations:
 ----------
 - Stackoverflow: A few questions on actions listeners and document filters
-- ChatGPT: Questions regarding best practices and some logic issues in already existing code. || 2-3 boiler plate(easy/already known) templates to get me started on complex functions. e.g. 5 lines with empty body x3 ||  Admin tasks e.g. already had a long list in another format but needed it surrounding with quotes and '+'s every break, i achieved 1/3 manual then asked gpt to finish the list. 
+- ChatGPT: Questions regarding best practices and some logic issues in already existing code. || 2-3 boiler plate(easy/already known) templates to get me started on complex functions.  ||  Admin tasks e.g. I already had a long list in another format but needed it surrounding with quotes and '+'s every break, i achieved 1/3 manual then asked gpt to finish the list. || Asked for an explanation of the Runnable class late in development. 

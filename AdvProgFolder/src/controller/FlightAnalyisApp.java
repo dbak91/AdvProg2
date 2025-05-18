@@ -8,8 +8,8 @@ import view.MainDisplayFrame;
  * Java entry point.
  *
  * <p>
- * Creates and sets visible a splash screen (WelcomeScreenJDialog) and after close, does the same
- * for the main swing frame (TableViewFrame).
+ * Creates and sets visible, a splash screen (WelcomeScreenJDialog) and after close, does the same
+ * for the main swing frame (TableViewFrame). Invoke later for EDT
  * </p>
  *
  * @author 23751662

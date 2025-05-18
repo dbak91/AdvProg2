@@ -112,7 +112,7 @@ public class CustomTableModel extends DefaultTableModel
 			FlightWithDelay flight = flights.get(i);
 			Vector<Object> row = new Vector<>();
 			row.add(flight.flightId);
-			row.add(flight.date);
+			row.add(flight.date.substring(0,4) +"-"+flight.date.substring(4,6)+"-"+flight.date.substring(6,8));
 			String airlineCode = flight.airlineCode;
 			DataDAO dataAccess = new DataDAO();
 			AirlineWithData airline = dataAccess.getAirlineFromIata(airlineCode);

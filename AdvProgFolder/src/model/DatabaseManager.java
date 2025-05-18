@@ -177,6 +177,8 @@ public class DatabaseManager
 	/**
 	 * Creates indexes in the db. (informed note, most querys use LIKE %% so indexes wont be used anyway)
 	 * <p>Intended to be used after data inserts.</p>
+	 * 
+	 * Most search terms use 'LIKE' so not sure this even achieves anything. 
 	 *
 	 * @throws Exception executeUpdate failed
 	 */
@@ -192,6 +194,7 @@ public class DatabaseManager
 			stmt.executeUpdate("CREATE INDEX IF NOT EXISTS idx_airport_iata ON airport(iata_code);");
 		} catch (SQLException e)
 		{
+			// popup???
 			System.err.println("Index creation failed: " + e.getMessage());
 		}
 	}

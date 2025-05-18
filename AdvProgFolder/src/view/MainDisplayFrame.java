@@ -15,6 +15,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -82,6 +83,10 @@ public class MainDisplayFrame extends JFrame
 	private JLabel								pageLabel;
 	private JTable								table;
 	private TableRowSorter<DefaultTableModel>	sorter;
+	
+	/**
+	 * The whole display
+	 */
 	private JPanel fullPanel ;
 	private JButton								prevBtn					= new JButton("Previous");
 	private ChartPanel delayPiePanel;
@@ -108,10 +113,10 @@ public class MainDisplayFrame extends JFrame
 			int i2 = Integer.parseInt(  o2.toString().split("\\.")[0]);
 			
 			return Integer.compare(i1, i2);
+			
 		} catch (NumberFormatException e)
 		{
-			return o1.toString().compareTo(
-					o2.toString());
+			return o1.toString().compareTo(o2.toString());
 		}
 	};
 
@@ -219,9 +224,10 @@ public class MainDisplayFrame extends JFrame
 	 * - table model
 	 * - main panel and layout
 	 * - subpanels (twoRow,userFunc,controlPanel)
-	 * - set selector and header listeners - add content to self
+	 * - set selector and header listeners 
+	 * - add content to self
 	 *
-	 * set visible left to parent
+	 * (set visible left to parent)
 	 */
 	public void initialise()
 	{
@@ -238,22 +244,6 @@ public class MainDisplayFrame extends JFrame
 		// prevent editing
 		tableModel = new CustomTableModel();
 		table = new JTable(tableModel);
-
-		table.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				// Get the row and column where the mouse was pressed
-				int row = table.rowAtPoint(e.getPoint());
-
-				if (row >= 0)
-				{
-					FlightWithDelay flight = rowFlightMap.get(row); // flight must be in the same order as
-					System.out.println("Row clicked: " + flight.flightId);
-				}
-			}
-		});
 
 		// instantiate now we have a new table model
 		sorter = new TableRowSorter<>(tableModel);
@@ -304,6 +294,7 @@ public class MainDisplayFrame extends JFrame
 		mainPanel.add(new FullSearchPanel(this), "FULL_SEARCH"); // extra view
 
 		setViewSelectorListener(); // set listener to switch tables/panels/view when choosing options
+		setTableRowListener();
 		setTableHeaderListener();
 
 		add(mainPanel);
@@ -1013,6 +1004,65 @@ public class MainDisplayFrame extends JFrame
 	 * -------------------------------------------------------
 	 */
 
+	private void setTableRowListener()
+	{
+	
+		table.addMouseListener(new MouseAdapter() 
+		{
+			@Override
+		    public void mouseClicked(MouseEvent e) 
+			{
+				if(viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flight"))
+				{
+
+					int rowClicked = table.rowAtPoint(e.getPoint());
+			        
+					if (rowClicked >= 0 && e.getClickCount() == 1) // row count for?
+					{
+			            // Example: get column data from the model
+						
+						int scheduled = (int) table.getValueAt(rowClicked,6);
+						int actual = (int) table.getValueAt(rowClicked,7);
+
+						int departureDelay = getDelay(scheduled,actual);
+						
+						scheduled = (int) table.getValueAt(rowClicked,8);
+						actual = (int) table.getValueAt(rowClicked,9);
+						
+						int arrivalDelay = getDelay(scheduled,actual);
+			            //String cellData1 = (String) table.getValueAt(rowClicked, 0); // column 0
+			            //String cellData2 = (String) table.getValueAt(rowClicked, 1); // column 1
+
+						int dueDelay = arrivalDelay-departureDelay;
+			            String message = "Airline: " + table.getValueAt(rowClicked,2) 
+			            		+ "\n Departure delay: " + (departureDelay > 0? "+":"") + departureDelay + " minutes\n"
+			            		+ " Arrival delay: " + (arrivalDelay > 0? "+":"") + arrivalDelay + " minutes \n Reason: " + table.getValueAt(rowClicked,10) 
+			            		+ "\n In flight adjustment: " + (dueDelay > 0? "+":"") + dueDelay + " minutes";
+			            
+
+			            
+			            JOptionPane.showMessageDialog(table, message, "Flight Information", JOptionPane.INFORMATION_MESSAGE);
+			        }
+				}// if flight
+
+		    }//mouse clciked override
+
+			private int getDelay(int scheduled, int actual)
+			{
+				// TODO Auto-generated method stub
+				int scheduledHours = scheduled / 100; // 12
+				int scheduledMinutes = scheduled % 100; // 45
+
+				int actualHours = actual / 100; // 13
+				int actualMinutes = actual % 100; // 55
+				
+				int scheduledTotalMinutes = scheduledHours * 60 + scheduledMinutes; // 12*60 + 45 = 765
+				int actualTotalMinutes = actualHours * 60 + actualMinutes; // 13*60 + 55 = 835
+				
+				return actualTotalMinutes - scheduledTotalMinutes;
+			}//get delay
+		});// add listener
+	}//setTableRowListener
 	/**
 	 * Action listener for special sorting actions on clicking column headers i.e.
 	 * recall populateTableWith... to request a new 'sort order' and and 'sort by' returned from db
@@ -1244,9 +1294,47 @@ public class MainDisplayFrame extends JFrame
 						}
 						
 		            };// runnable
-			            
+			        
+		            
+		            
+		            JTableHeader header = table.getTableHeader();
+		            
+		            header.setToolTipText(""); // enables
+
+		            String[] tips = {
+		            		"<html>Avg arrival delay when Origin Airport. <br> Not the Departure delay.<html>",
+		            		"<html>Total arrival delay when Origin Airport. <br> Not the departure delay.<html>",
+		            		"Avg arrival delay when Destination Airport. ",
+		            		"Total delay when Destination Airport",
+		            };
+		            // Override getToolTipText to show column-specific tooltips
+		            header.addMouseMotionListener(new MouseMotionAdapter() 
+		            {
+		               
+		            	@Override
+		                public void mouseMoved(MouseEvent e) {
+		                
+		            		JTableHeader h = (JTableHeader) e.getSource();
+		                    
+		            		TableColumnModel colModel = h.getColumnModel();
+		            		
+		                    int column = colModel.getColumnIndexAtX(e.getX());
+		                    int tipStartOffset = 2;
+		                    
+		                    if (column >= tipStartOffset && column < tips.length+tipStartOffset) 
+		                    {
+		                    
+		                    	h.setToolTipText(tips[column-tipStartOffset]);
+		                    } else 
+		                    {
+		                        
+		                    	h.setToolTipText(null);
+		                    }
+		                }
+		            });
 					runWithLoadingLabel(task, e, "Loading...");
-					
+					fullPanel.revalidate();
+					fullPanel.repaint();
 					if (tableModel.getRowCount() < 49 && !selectedItem.toLowerCase().contains("analysis"))
 					{
 
@@ -1318,6 +1406,8 @@ public class MainDisplayFrame extends JFrame
 	 *
 	 * Future enh: calculate offset and allow negative, though probably not needed
 	 * since user can sort by header to get the last/highest result that way anyway
+	 * 
+	 * How to stop page number increasing past results set????
 	 *
 	 */
 	public class PageButtonActionListener implements ActionListener
@@ -1354,33 +1444,37 @@ public class MainDisplayFrame extends JFrame
 				currentPage++;
 			}
 
-			if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flights"))
-			{
-				if (searchActive)
+			Runnable task = ()->{
+				if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flights"))
 				{
-					populateTableWithFlightSearch(currentSortColumn, ascending);
+					if (searchActive)
+					{
+						populateTableWithFlightSearch(currentSortColumn, ascending);
+					}
+					else
+					{
+						populateTableWithAllFlights(currentSortColumn, ascending);
+
+					}
+
+				}
+				else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("line"))
+				{
+					populateTableWithAirline();
+				}
+				else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("basic"))
+				{
+					populateTableWithAirport(false);
 				}
 				else
 				{
-					populateTableWithAllFlights(currentSortColumn, ascending);
-
+					populateTableWithAirport(true);
+					// loadFlights();
 				}
 
-			}
-			else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("line"))
-			{
-				populateTableWithAirline();
-			}
-			else if (viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("basic"))
-			{
-				populateTableWithAirport(false);
-			}
-			else
-			{
-				populateTableWithAirport(true);
-				// loadFlights();
-			}
-
+			};
+			
+			runWithLoadingLabel(task, null, "Loading page...");
 			pageLabel.setText("" + currentPage); // hack, add emtpy string to get int as string?? shorter than Integer
 			// parse int but probably not recc.
 		}
@@ -1421,7 +1515,9 @@ public class MainDisplayFrame extends JFrame
 
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-			if (!isSelected) {
+			if (!isSelected) 
+			{
+		
 				c.setBackground(colour);
 				// text readability? should it be white or black to match other columns?
 			}
@@ -1431,13 +1527,15 @@ public class MainDisplayFrame extends JFrame
 	}
 	/**
 	 * Attempt at getting the repeated loading screen work in background to be defined once,
-	 * , able to pass code to a function in java? fantastic. 
+	 *   
 	 * 
 	 * <p>Sets up a label and loading JDialog and uses swing worker to execute the task in 
 	 * background off the EDT.</p> 
 	 * 
-	 * @param task  the code to run on in background
-	 * @param event for the special cause of being on ViewOptions select, expected null if not ComboBox item event
+	 * , ones able to pass code to a function in java? fantastic. (Runnable class; might have to see the code for that when i know more adv. java.)
+	 * 
+	 * @param task  the code to run in background
+	 * @param event for the special case of being a ViewOptions select, expected null if not ComboBox item event
 	 * @param baseInput label text
 	 */
 	public void runWithLoadingLabel(Runnable task, ItemEvent event, String baseInput) 
@@ -1480,7 +1578,7 @@ public class MainDisplayFrame extends JFrame
 					
 					if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>15 && event.getItem().toString().toLowerCase().contains("analysis")))
 					{	
-						loadingLabel.setText("<html>"+finalBase+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for acccess to db. <br>"
+						loadingLabel.setText("<html>"+finalBase+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for access to database. <br>"
 								+ "e.g. Previous run / OneDrive </html>");
 					
 						loading.setSize(420,160);
@@ -1522,6 +1620,6 @@ public class MainDisplayFrame extends JFrame
 		csvWorker.execute(); // worker.execute();
 		loading.setVisible(true);
 		
-	}// void run with loadin
+	}// void run with loading
 	
 }

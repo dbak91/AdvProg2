@@ -345,6 +345,9 @@ public class FullSearchPanel extends JPanel
 								// cater for date placeholder
 								if (!fieldText.equals("YYYY-MM-DD") && !fieldText.isEmpty())
 								{
+									/*
+									 * add to search map, big comment cause hard to find on quick scan
+									 */
 									parent.searchMap.put(key, fieldText);
 								}
 							}
@@ -360,7 +363,7 @@ public class FullSearchPanel extends JPanel
 				}
 				else
 				{
-					JOptionPane.showMessageDialog(null, "Noc change");
+					JOptionPane.showMessageDialog(null, "No change");
 				}
 
 				parent.cardLayout.show(parent.mainPanel, "TABLE V");

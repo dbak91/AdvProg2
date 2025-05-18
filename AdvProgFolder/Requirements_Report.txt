@@ -1,0 +1,28 @@
+equirements:
+-------------
+                                  ----------
+Database table creation to spec.  - Met. 
+                                  ----------
+CSV import 10,000 row update.     - Met with an ETA as well 
+                                  ----------
+Invalid data skip                 - Partly met, chose a few fields to be empty checked. 
+                                  ----------
+No additional libraries           - Met. 
+                                  ----------
+Basic search                      - Met. 
+                                  ----------
+	[date, date range, airport, airline (code or name),delay reason and length & a combination]
+                                  ----------
+Clicking of row expansion/popup.  - Met, not "all information" but a breakdown of "departure delay" and "arrival delay" and adjuistment due to flight (e.g. did the flight save or cause delay). 
+                                  ----------
+Analysis                          - Partly Met/Met. Extensive analysis on Airports taking 30 secs to run but tabular form not graphical apart from a singular pie chart for delay reason. 
+                                  ----------
+Ease of use                       - Subjectively met, alpha testing had no feedback regarding non-understanding of features. 
+				(alpha testing= single colleague/friend having a courteous play). 
+                                  ----------
+Subsection :
+------------
+	Manual calculation of delay not used. Used the delay from csv after sample sized verification it matches anyway. No such evaluation of departure delay. 
+	Classes and DAO used. 
+
+

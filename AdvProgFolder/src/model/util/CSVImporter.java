@@ -43,7 +43,7 @@ public class CSVImporter
 	private static int	DELAY_DUE_SECURITY_ind;
 	private static int	DELAY_DUE_LATE_AIRCRAFT_ind;
 
-	private static int	BATCH_SIZE	= 100000;
+	private static int	BATCH_SIZE	= 10000;
 
 	/**
 	 * Gets a connection to the database and csv input file, scans the input file line by line
@@ -59,12 +59,12 @@ public class CSVImporter
 
 		try (BufferedReader reader = Files.newBufferedReader(csvPath);
 				Connection conn = DatabaseManager.connect(false);
-				PreparedStatement insertAirlineStmt = conn.prepareStatement(InsertStatements.insertAirlineSQL);
+					PreparedStatement insertAirlineStmt = conn.prepareStatement(InsertStatements.insertAirlineSQL);
 				PreparedStatement insertAirportStmt = conn.prepareStatement(InsertStatements.insertAirportSQL);
 				PreparedStatement insertDelayStmnt = conn.prepareStatement(InsertStatements.insertDelaySQL);)
 		{
 			PreparedStatement insertFlightStmnt = conn.prepareStatement(InsertStatements.insertFlightSQL,
-					Statement.RETURN_GENERATED_KEYS);
+					Statement.RETURN_GENERATED_KEYS); //need access to gen keys
 
 			// read header line (should be first) and assign indexes for mapping
 			String[] header = reader.readLine().split(",", -1);
@@ -77,14 +77,11 @@ public class CSVImporter
 			int batchCount = 0;
 			int indexReached = 1;
 
-
+			final long[] startMillis = {System.currentTimeMillis()};
 			final int[] seconds = {0};
-			Timer timer = new Timer(1000, evt -> {
-				seconds[0]++;
-				//timerLabel.setText("Elapsed: " + seconds[0] + "s");
-			});
+			// get eklapsed every milisec
+			
 
-			timer.start();
 			int eta = 0;
 			/*
 			 * for each line, get fields[matching_index] into the ? params in insert sql statements
@@ -120,7 +117,7 @@ public class CSVImporter
 				insertAirportStmt.addBatch();
 				//
 				insertFlightStmnt.setInt(1, indexReached);
-				insertFlightStmnt.setString(2, fields[FL_DATE_ind]); // Example: "2019-01-09"
+				insertFlightStmnt.setString(2, fields[FL_DATE_ind].replace("-", "")); // Example: "2019-01-09"
 				insertFlightStmnt.setString(3, fields[AIRLINE_CODE_ind]);
 				insertFlightStmnt.setInt(4,
 						fields[FL_NUMBER_ind].isEmpty() ? 0 : Integer.parseInt(fields[FL_NUMBER_ind]));
@@ -220,15 +217,20 @@ public class CSVImporter
 					{
 
 						batchCount = 0;
-						if (seconds[0] > 0) {
+						 long elapsedMillis = System.currentTimeMillis() - startMillis[0];
+						
+						 // this was a right faff with types
+						if (elapsedMillis > 0) {
 							long linesRemaining = lineCount - indexReached;
-							long linesPerSecond = indexReached / seconds[0];
+							//seconds[0] = (int)(elapsedMillis / 1000);//
+							 double elapsedSeconds = elapsedMillis / 1000.0;
+							double linesPerSecond = indexReached / elapsedSeconds;
 							eta =(int) linesPerSecond > 0 ?(int) linesRemaining / (int)linesPerSecond : -1;
 
-							System.out.println("eta: " + eta + " seconds");
+							System.out.println("eta: " + eta + " seconds" + "linecount"+lineCount +" index"+indexReached+"seconds"+seconds[0] +"linesPersec"+linesPerSecond);
 						}
 						//eta = (int) (lineCount - indexReached) / seconds[0];
-						timer.restart();
+					//	timer.restart();
 						loadingLabel.setText(loadingLabel.getText().split("Import")[0] + "Import [lines: "  + indexReached + " out of " + lineCount+"]" + " ETA: "+eta + "secs");
 						System.out.println("batch reached " + BATCH_SIZE + " rows " + "(" + indexReached + " out of " + lineCount +")"
 								);

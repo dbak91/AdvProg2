@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import model.sql.SearchStataments;
+import model.sql.SearchStatements;
 /**
  * DAO for the database.
  *
- * <p>A bit of an amalgam in that it is capable of returning FlightWithDelay, AirlineWithData or Airport, DelayReason,
+ * <p>A bit of an amalgam in that it is capable of returning FlightWithDelay, AirlineWithData, Airport, or DelayReason,
  * representing Flight, Airport, Airline, entries from the database tables. </p>
  *
  * @author 23751662
@@ -72,7 +72,7 @@ public class DataDAO implements AutoCloseable
 		public Integer	delayLength;
 	}
 	/**
-	 * Class representing Delay_Reason
+	 * Class representing Delay Reason
 	 */
 	public class DelayReason
 	{
@@ -158,7 +158,7 @@ public class DataDAO implements AutoCloseable
 		}
 		System.out.println("getallflights");
 		try (PreparedStatement stmt = conn.prepareStatement(
-				SearchStataments.selectAllFlightsWithDelay + " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?"))
+				SearchStatements.selectAllFlightsWithDelay + " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?"))
 		{
 
 			stmt.setInt(1, pageSize);
@@ -196,7 +196,7 @@ public class DataDAO implements AutoCloseable
 		List<Airport> airports = new ArrayList<>();
 		String order = ascending ? "ASC" : "DESC";
 
-		String sql = SearchStataments.selectAirportMinimum + " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?";
+		String sql = SearchStatements.selectAirportMinimum + " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?";
 		System.out.println("sqlString" + sql);
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, pageSize);
@@ -232,7 +232,7 @@ public class DataDAO implements AutoCloseable
 		AirlineWithData airline = new AirlineWithData();
 		//airline.iata_code
 
-		String sql = SearchStataments.buildAirlineIataQuery(airlineCode);
+		String sql = SearchStatements.buildAirlineIataQuery(airlineCode);
 
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
@@ -257,7 +257,7 @@ public class DataDAO implements AutoCloseable
 	 */
 	public Airport getAirportByIata(String iataCode) throws SQLException
 	{
-		String sql = SearchStataments.buildSearchAirportIata(iataCode);
+		String sql = SearchStatements.buildSearchAirportIata(iataCode);
 		Airport airport = new Airport();
 		// change to prepared
 		PreparedStatement stmt = conn.prepareStatement(sql);
@@ -287,11 +287,17 @@ public class DataDAO implements AutoCloseable
 		String sql = "";
 		if (searchMap == null || searchMap.isEmpty())
 		{
-			sql = SearchStataments.selectAirlinesWithAvg;
+			sql = SearchStatements.selectAirlinesWithAvg;
 		}
 		else
 		{
-			sql = SearchStataments.buildAirlineQuery(searchMap);
+			if(searchMap.containsKey("date"))
+			{
+				String date = searchMap.get("date");
+				date=date.replace("-","");
+				searchMap.put("date", date);
+			}
+			sql = SearchStatements.buildAirlineQuery(searchMap);
 		}
 
 		// change to prepared
@@ -346,7 +352,34 @@ public class DataDAO implements AutoCloseable
 		{
 			sortBy = "f.flight_id";
 		}
-		try (PreparedStatement stmt = conn.prepareStatement(SearchStataments.buildFlightSearchQuery(searchMap)
+		
+		// database is 8char without breaks for date, as spec. I would have had it has char10 and kept db inline with csv. 
+		
+		for(String map: searchMap.keySet())
+		{
+			System.out.println("key"+map + "val"+searchMap.get(map));
+		}
+		if(searchMap.containsKey("date")||searchMap.containsKey("all"))
+		{
+			
+			String date = searchMap.get("date");
+			if(date != null && !date.isEmpty())
+			{
+				date=date.replace("-","");
+			
+				searchMap.put("date", date);
+			}
+			
+			String all = searchMap.get("all");
+			if(all != null && !all.isEmpty())
+			{
+				all=all.replace("-","");
+			
+				searchMap.put("all", all);
+			}
+			
+		}
+		try (PreparedStatement stmt = conn.prepareStatement(SearchStatements.buildFlightSearchQuery(searchMap)
 				+ " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?"))
 		{
 			/*
@@ -400,10 +433,17 @@ public class DataDAO implements AutoCloseable
 	{
 		List<Airport> airports = new ArrayList<>();
 
+		
 		//convert to sql
 		String order = ascending ? "ASC" : "DESC";
 
-		try (PreparedStatement stmt = conn.prepareStatement(SearchStataments.buildAirportSearchQuery(searchMap)
+		if(searchMap.containsKey("date"))
+		{
+			String date = searchMap.get("date");
+			date=date.replace("-","");
+			searchMap.put("date", date);
+		}
+		try (PreparedStatement stmt = conn.prepareStatement(SearchStatements.buildAirportSearchQuery(searchMap)
 				+ " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?"))
 		{
 			/*
@@ -454,12 +494,27 @@ public class DataDAO implements AutoCloseable
 		List<Airport> airportsWithFlights = new ArrayList<>();
 		String order = ascending ? "ASC" : "DESC";
 
-		String sql = SearchStataments.buildAirportFullQuery(airportSearchMap);
+		if(airportSearchMap.containsKey("date"))
+		{
+			String date = airportSearchMap.get("date");
+			if(date!=null)
+			{
+				date=date.replace("-","");
+				airportSearchMap.put("date", date);
+			}
+			
+		}
+		String sql = SearchStatements.buildAirportFullQuery(airportSearchMap);
 
 		// no such date field for airport , only date search
 		if (sortBy.toLowerCase().equals("date"))
 		{
 			sortBy = "a.iata_code";
+		}
+		
+		if (sortBy.toLowerCase().equals("name"))
+		{
+			sortBy = "a.name";
 		}
 
 		String suffix = " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?";
@@ -556,7 +611,7 @@ public class DataDAO implements AutoCloseable
 		List<FlightWithDelay> flights = new ArrayList<>();
 		String order = ascending ? "ASC" : "DESC";
 
-		PreparedStatement stmt = conn.prepareStatement(	SearchStataments.searchForAirportOrigInFlight + " ORDER BY "
+		PreparedStatement stmt = conn.prepareStatement(	SearchStatements.searchForAirportOrigInFlight + " ORDER BY "
 				+ sortBy + " " + order);
 		stmt.setString(1, airport);
 		ResultSet rs = stmt.executeQuery();
@@ -578,7 +633,7 @@ public class DataDAO implements AutoCloseable
 
 		try
 		{
-			PreparedStatement stmt = conn.prepareStatement(	SearchStataments.searchForAllDelays);
+			PreparedStatement stmt = conn.prepareStatement(	SearchStatements.searchForAllDelays);
 			//stmt.setString(1, airport);
 			ResultSet rs;
 

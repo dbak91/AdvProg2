@@ -20,7 +20,7 @@ CREATE TABLE Airline (
 -- Flight table
 CREATE TABLE Flight (
     flight_id INTEGER PRIMARY KEY, -- REMOVE AUTOINCREMENT DO IN JAVA (NEED TO CYCLE GENERATED KEYS)
-    date CHAR(10) NOT NULL, -- Spec says char(8) but stored as 'YYYY-MM-DD' total 10
+    date CHAR(8) NOT NULL, -- Spec says char(8) but stored as 'YYYY-MM-DD' total 10
     airline_code CHAR(2) NOT NULL,
     flight_number INTEGER NOT NULL,
     flight_origin CHAR(3) NOT NULL,
