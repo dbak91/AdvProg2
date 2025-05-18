@@ -352,32 +352,37 @@ public class DataDAO implements AutoCloseable
 		{
 			sortBy = "f.flight_id";
 		}
-		
-		// database is 8char without breaks for date, as spec. I would have had it has char10 and kept db inline with csv. 
-		
+
+		// database is 8char without breaks for date, as spec. I would have had it has char10 and kept db inline with csv.
+
 		for(String map: searchMap.keySet())
 		{
 			System.out.println("key"+map + "val"+searchMap.get(map));
 		}
 		if(searchMap.containsKey("date")||searchMap.containsKey("all"))
 		{
-			
+
 			String date = searchMap.get("date");
 			if(date != null && !date.isEmpty())
 			{
 				date=date.replace("-","");
-			
+
 				searchMap.put("date", date);
 			}
-			
+
 			String all = searchMap.get("all");
 			if(all != null && !all.isEmpty())
 			{
-				all=all.replace("-","");
-			
-				searchMap.put("all", all);
+				// make sure not negative delay search e.g. -74 before replacing for date e.g. 2014-01
+				if(all.indexOf("-")>0)
+				{
+					all=all.replace("-","");
+					searchMap.put("all", all);
+				}
+
+				
 			}
-			
+
 		}
 		try (PreparedStatement stmt = conn.prepareStatement(SearchStatements.buildFlightSearchQuery(searchMap)
 				+ " ORDER BY " + sortBy + " " + order + " LIMIT ? OFFSET ?"))
@@ -433,7 +438,7 @@ public class DataDAO implements AutoCloseable
 	{
 		List<Airport> airports = new ArrayList<>();
 
-		
+
 		//convert to sql
 		String order = ascending ? "ASC" : "DESC";
 
@@ -502,7 +507,7 @@ public class DataDAO implements AutoCloseable
 				date=date.replace("-","");
 				airportSearchMap.put("date", date);
 			}
-			
+
 		}
 		String sql = SearchStatements.buildAirportFullQuery(airportSearchMap);
 
@@ -511,7 +516,7 @@ public class DataDAO implements AutoCloseable
 		{
 			sortBy = "a.iata_code";
 		}
-		
+
 		if (sortBy.toLowerCase().equals("name"))
 		{
 			sortBy = "a.name";

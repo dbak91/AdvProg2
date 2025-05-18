@@ -2,8 +2,8 @@ package controller;
 
 import javax.swing.SwingUtilities;
 
-import view.WelcomeScreenJDialog;
 import view.MainDisplayFrame;
+import view.WelcomeScreenJDialog;
 /**
  * Java entry point.
  *

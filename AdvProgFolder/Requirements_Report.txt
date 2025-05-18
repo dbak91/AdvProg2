@@ -1,28 +1,30 @@
-equirements:
+Requirements:
 -------------
                                   ----------
 Database table creation to spec.  - Met. 
                                   ----------
-CSV import 10,000 row update.     - Met with an ETA as well 
+CSV import 10,000 row update.     - Met, with an ETA. 
                                   ----------
-Invalid data skip                 - Partly met, chose a few fields to be empty checked. 
+Invalid data skip                 - Partly Met. A few select fields empty checked. 
                                   ----------
 No additional libraries           - Met. 
                                   ----------
 Basic search                      - Met. 
                                   ----------
-	[date, date range, airport, airline (code or name),delay reason and length & a combination]
+	[date, date range, airport, airline (code or name),delay reason and length & a combination thereof]
                                   ----------
-Clicking of row expansion/popup.  - Met, not "all information" but a breakdown of "departure delay" and "arrival delay" and adjuistment due to flight (e.g. did the flight save or cause delay). 
+Clicking of row expansion/popup.  - Met. Not "all information" but a breakdown of "departure delay" and "arrival delay" and "adjustment due to flight" (e.g. did the flight save or cause a delay). 
                                   ----------
 Analysis                          - Partly Met/Met. Extensive analysis on Airports taking 30 secs to run but tabular form not graphical apart from a singular pie chart for delay reason. 
                                   ----------
-Ease of use                       - Subjectively met, alpha testing had no feedback regarding non-understanding of features. 
-				(alpha testing= single colleague/friend having a courteous play). 
+Ease of use                       - Subjectively Met. Alpha testing had no feedback regarding non-understanding of features. 
+						      (alpha testing = single colleague/friend having a courteous play). 
+                                  ----------
+8th May Release                   - Not Met. Evidenced 10-day extension taken (not lightly) after seeking guidance from skills coach and line manager. Severely broken version submitted 8th/10th. 
                                   ----------
 Subsection :
 ------------
-	Manual calculation of delay not used. Used the delay from csv after sample sized verification it matches anyway. No such evaluation of departure delay. 
+	Manual calculation of delay not used. Used the delay data from csv after sample sized verification it matches anyway. No such evaluation of departure delay. 
 	Classes and DAO used. 
 
 

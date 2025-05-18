@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.swing.JLabel;
-import javax.swing.Timer;
 
 import model.DatabaseManager;
 import model.sql.InsertStatements;
@@ -59,7 +58,7 @@ public class CSVImporter
 
 		try (BufferedReader reader = Files.newBufferedReader(csvPath);
 				Connection conn = DatabaseManager.connect(false);
-					PreparedStatement insertAirlineStmt = conn.prepareStatement(InsertStatements.insertAirlineSQL);
+				PreparedStatement insertAirlineStmt = conn.prepareStatement(InsertStatements.insertAirlineSQL);
 				PreparedStatement insertAirportStmt = conn.prepareStatement(InsertStatements.insertAirportSQL);
 				PreparedStatement insertDelayStmnt = conn.prepareStatement(InsertStatements.insertDelaySQL);)
 		{
@@ -80,7 +79,7 @@ public class CSVImporter
 			final long[] startMillis = {System.currentTimeMillis()};
 			final int[] seconds = {0};
 			// get eklapsed every milisec
-			
+
 
 			int eta = 0;
 			/*
@@ -217,20 +216,20 @@ public class CSVImporter
 					{
 
 						batchCount = 0;
-						 long elapsedMillis = System.currentTimeMillis() - startMillis[0];
-						
-						 // this was a right faff with types
+						long elapsedMillis = System.currentTimeMillis() - startMillis[0];
+
+						// this was a right faff with types
 						if (elapsedMillis > 0) {
 							long linesRemaining = lineCount - indexReached;
 							//seconds[0] = (int)(elapsedMillis / 1000);//
-							 double elapsedSeconds = elapsedMillis / 1000.0;
+							double elapsedSeconds = elapsedMillis / 1000.0;
 							double linesPerSecond = indexReached / elapsedSeconds;
 							eta =(int) linesPerSecond > 0 ?(int) linesRemaining / (int)linesPerSecond : -1;
 
 							System.out.println("eta: " + eta + " seconds" + "linecount"+lineCount +" index"+indexReached+"seconds"+seconds[0] +"linesPersec"+linesPerSecond);
 						}
 						//eta = (int) (lineCount - indexReached) / seconds[0];
-					//	timer.restart();
+						//	timer.restart();
 						loadingLabel.setText(loadingLabel.getText().split("Import")[0] + "Import [lines: "  + indexReached + " out of " + lineCount+"]" + " ETA: "+eta + "secs");
 						System.out.println("batch reached " + BATCH_SIZE + " rows " + "(" + indexReached + " out of " + lineCount +")"
 								);

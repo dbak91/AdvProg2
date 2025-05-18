@@ -358,7 +358,7 @@ public class FullSearchPanel extends JPanel
 					Runnable task = () -> {
 						parent.populateTableWithFlightSearch("date", true);
 					};
-					
+
 					parent.runWithLoadingLabel(task, null, "Full search...May be slow if too unique");
 				}
 				else

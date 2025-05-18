@@ -70,10 +70,10 @@ public class MainDisplayFrame extends JFrame
 	 * -----------Members-------------------------------------
 	 * -------------------------------------------------------
 	 */
-	
+
 	private static final long					serialVersionUID		= -5786420551398119288L;
 	private final Color                         highlightColour         = new Color(245,245,240);
-	
+
 	private final String						APP_TITLE				= "Flight Analyser";
 	private final int							PAGE_SIZE				= 50;
 	private int									airportFullPageSize		= 20;
@@ -83,7 +83,7 @@ public class MainDisplayFrame extends JFrame
 	private JLabel								pageLabel;
 	private JTable								table;
 	private TableRowSorter<DefaultTableModel>	sorter;
-	
+
 	/**
 	 * The whole display
 	 */
@@ -111,9 +111,9 @@ public class MainDisplayFrame extends JFrame
 		{
 			int i1 = Integer.parseInt(	o1.toString().split("\\.")[0]);
 			int i2 = Integer.parseInt(  o2.toString().split("\\.")[0]);
-			
+
 			return Integer.compare(i1, i2);
-			
+
 		} catch (NumberFormatException e)
 		{
 			return o1.toString().compareTo(o2.toString());
@@ -173,7 +173,7 @@ public class MainDisplayFrame extends JFrame
 	private String								dateToSearch			= null;
 	private String								iataToSearch			= null;
 	private String								airlineToSearch			= null;
- 
+
 
 	/*
 	 * ------------------------------------
@@ -224,7 +224,7 @@ public class MainDisplayFrame extends JFrame
 	 * - table model
 	 * - main panel and layout
 	 * - subpanels (twoRow,userFunc,controlPanel)
-	 * - set selector and header listeners 
+	 * - set selector and header listeners
 	 * - add content to self
 	 *
 	 * (set visible left to parent)
@@ -329,7 +329,7 @@ public class MainDisplayFrame extends JFrame
 
 		populateTableWithFlightSearch(sortBy, ascending);
 	}
-	
+
 	/**
 	 * Populate the table based off all flights in the database
 	 *
@@ -447,11 +447,11 @@ public class MainDisplayFrame extends JFrame
 		}
 
 	}
-	
-	
+
+
 	/**
 	 * Set the table to contain airline data
-	 * 
+	 *
 	 *  retrieves all airlines matching searchMap criteria and applied to table
 	 */
 	public void populateTableWithAirline()
@@ -897,7 +897,7 @@ public class MainDisplayFrame extends JFrame
 			// do in backgreoeund to allow progress button
 
 			System.err.println("import pressed");
-			
+
 			Runnable task = () -> {
 				// TIME CONSUMING
 				if (dateToSearch != null || iataToSearch != null || airlineToSearch != null)
@@ -910,7 +910,7 @@ public class MainDisplayFrame extends JFrame
 					populateTableWithAirport(true);
 				}
 			};
-			
+
 			runWithLoadingLabel(task, null, "Searching....");
 
 			// else no action
@@ -970,9 +970,9 @@ public class MainDisplayFrame extends JFrame
 						currentSortColumn,
 						true);
 			};
-			
+
 			runWithLoadingLabel(task, null, "Searching..."+term.getText());
-				
+
 		});
 
 		JButton fullSearchButton = new JButton("Full Search");
@@ -1006,46 +1006,47 @@ public class MainDisplayFrame extends JFrame
 
 	private void setTableRowListener()
 	{
-	
-		table.addMouseListener(new MouseAdapter() 
+
+		table.addMouseListener(new MouseAdapter()
 		{
 			@Override
-		    public void mouseClicked(MouseEvent e) 
+			public void mouseClicked(MouseEvent e)
 			{
 				if(viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flight"))
 				{
 
 					int rowClicked = table.rowAtPoint(e.getPoint());
-			        
+
 					if (rowClicked >= 0 && e.getClickCount() == 1) // row count for?
 					{
-			            // Example: get column data from the model
-						
+						// Example: get column data from the model
+
 						int scheduled = (int) table.getValueAt(rowClicked,6);
 						int actual = (int) table.getValueAt(rowClicked,7);
 
 						int departureDelay = getDelay(scheduled,actual);
-						
+
 						scheduled = (int) table.getValueAt(rowClicked,8);
 						actual = (int) table.getValueAt(rowClicked,9);
-						
+
 						int arrivalDelay = getDelay(scheduled,actual);
-			            //String cellData1 = (String) table.getValueAt(rowClicked, 0); // column 0
-			            //String cellData2 = (String) table.getValueAt(rowClicked, 1); // column 1
+						//String cellData1 = (String) table.getValueAt(rowClicked, 0); // column 0
+						//String cellData2 = (String) table.getValueAt(rowClicked, 1); // column 1
 
 						int dueDelay = arrivalDelay-departureDelay;
-			            String message = "Airline: " + table.getValueAt(rowClicked,2) 
-			            		+ "\n Departure delay: " + (departureDelay > 0? "+":"") + departureDelay + " minutes\n"
-			            		+ " Arrival delay: " + (arrivalDelay > 0? "+":"") + arrivalDelay + " minutes \n Reason: " + table.getValueAt(rowClicked,10) 
-			            		+ "\n In flight adjustment: " + (dueDelay > 0? "+":"") + dueDelay + " minutes";
-			            
+						String message = "Airline: " + table.getValueAt(rowClicked,2)
+						+ "\n Departure delay: " + (departureDelay > 0? "+":"") + departureDelay + " minutes"
+						+ "\n Arrival delay: " + (arrivalDelay > 0? "+":"") + arrivalDelay + " minutes"
+						+ "\n Reason: " + table.getValueAt(rowClicked,10)
+						+ "\n In flight adjustment: " + (dueDelay > 0? "+":"") + dueDelay + " minutes";
 
-			            
-			            JOptionPane.showMessageDialog(table, message, "Flight Information", JOptionPane.INFORMATION_MESSAGE);
-			        }
+
+
+						JOptionPane.showMessageDialog(table, message, "Flight Information", JOptionPane.INFORMATION_MESSAGE);
+					}
 				}// if flight
 
-		    }//mouse clciked override
+			}//mouse clciked override
 
 			private int getDelay(int scheduled, int actual)
 			{
@@ -1055,10 +1056,10 @@ public class MainDisplayFrame extends JFrame
 
 				int actualHours = actual / 100; // 13
 				int actualMinutes = actual % 100; // 55
-				
+
 				int scheduledTotalMinutes = scheduledHours * 60 + scheduledMinutes; // 12*60 + 45 = 765
 				int actualTotalMinutes = actualHours * 60 + actualMinutes; // 13*60 + 55 = 835
-				
+
 				return actualTotalMinutes - scheduledTotalMinutes;
 			}//get delay
 		});// add listener
@@ -1204,11 +1205,11 @@ public class MainDisplayFrame extends JFrame
 							}
 
 						}; // runnable task
-						
+
 						runWithLoadingLabel(task, null, "Reording...");
-					
+
 					}// selected contains 'line'
-					
+
 				} // colukmn index > 0
 			}// mouse event
 
@@ -1248,7 +1249,7 @@ public class MainDisplayFrame extends JFrame
 						if (selectedItem.toLowerCase().contains("airline"))
 						{
 							setAirlinePanel(); // set function buttons
-								
+
 							populateTableWithAirline();
 
 							// need numeric instead string sorter for number fields
@@ -1262,7 +1263,7 @@ public class MainDisplayFrame extends JFrame
 						else if (selectedItem.toLowerCase().contains("flights"))
 						{
 							setFlightsPanel(); // set function buttons
-							
+
 							currentSortColumn = "date";
 
 							sorter.setComparator(0, numericComparator);// Flight id
@@ -1292,46 +1293,46 @@ public class MainDisplayFrame extends JFrame
 						else{
 							setDelayPanel();
 						}
-						
-		            };// runnable
-			        
-		            
-		            
-		            JTableHeader header = table.getTableHeader();
-		            
-		            header.setToolTipText(""); // enables
 
-		            String[] tips = {
-		            		"<html>Avg arrival delay when Origin Airport. <br> Not the Departure delay.<html>",
-		            		"<html>Total arrival delay when Origin Airport. <br> Not the departure delay.<html>",
-		            		"Avg arrival delay when Destination Airport. ",
-		            		"Total delay when Destination Airport",
-		            };
-		            // Override getToolTipText to show column-specific tooltips
-		            header.addMouseMotionListener(new MouseMotionAdapter() 
-		            {
-		               
-		            	@Override
-		                public void mouseMoved(MouseEvent e) {
-		                
-		            		JTableHeader h = (JTableHeader) e.getSource();
-		                    
-		            		TableColumnModel colModel = h.getColumnModel();
-		            		
-		                    int column = colModel.getColumnIndexAtX(e.getX());
-		                    int tipStartOffset = 2;
-		                    
-		                    if (column >= tipStartOffset && column < tips.length+tipStartOffset) 
-		                    {
-		                    
-		                    	h.setToolTipText(tips[column-tipStartOffset]);
-		                    } else 
-		                    {
-		                        
-		                    	h.setToolTipText(null);
-		                    }
-		                }
-		            });
+					};// runnable
+
+
+
+					JTableHeader header = table.getTableHeader();
+
+					header.setToolTipText(""); // enables
+
+					String[] tips = {
+							"<html>Avg arrival delay when Origin Airport. <br> Not the Departure delay.<html>",
+							"<html>Total arrival delay when Origin Airport. <br> Not the departure delay.<html>",
+							"Avg arrival delay when Destination Airport. ",
+							"Total delay when Destination Airport",
+					};
+					// Override getToolTipText to show column-specific tooltips
+					header.addMouseMotionListener(new MouseMotionAdapter()
+					{
+
+						@Override
+						public void mouseMoved(MouseEvent e) {
+
+							JTableHeader h = (JTableHeader) e.getSource();
+
+							TableColumnModel colModel = h.getColumnModel();
+
+							int column = colModel.getColumnIndexAtX(e.getX());
+							int tipStartOffset = 2;
+
+							if (column >= tipStartOffset && column < tips.length+tipStartOffset)
+							{
+
+								h.setToolTipText(tips[column-tipStartOffset]);
+							} else
+							{
+
+								h.setToolTipText(null);
+							}
+						}
+					});
 					runWithLoadingLabel(task, e, "Loading...");
 					fullPanel.revalidate();
 					fullPanel.repaint();
@@ -1406,7 +1407,7 @@ public class MainDisplayFrame extends JFrame
 	 *
 	 * Future enh: calculate offset and allow negative, though probably not needed
 	 * since user can sort by header to get the last/highest result that way anyway
-	 * 
+	 *
 	 * How to stop page number increasing past results set????
 	 *
 	 */
@@ -1473,7 +1474,7 @@ public class MainDisplayFrame extends JFrame
 				}
 
 			};
-			
+
 			runWithLoadingLabel(task, null, "Loading page...");
 			pageLabel.setText("" + currentPage); // hack, add emtpy string to get int as string?? shorter than Integer
 			// parse int but probably not recc.
@@ -1515,9 +1516,9 @@ public class MainDisplayFrame extends JFrame
 
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-			if (!isSelected) 
+			if (!isSelected)
 			{
-		
+
 				c.setBackground(colour);
 				// text readability? should it be white or black to match other columns?
 			}
@@ -1527,20 +1528,20 @@ public class MainDisplayFrame extends JFrame
 	}
 	/**
 	 * Attempt at getting the repeated loading screen work in background to be defined once,
-	 *   
-	 * 
-	 * <p>Sets up a label and loading JDialog and uses swing worker to execute the task in 
-	 * background off the EDT.</p> 
-	 * 
+	 *
+	 *
+	 * <p>Sets up a label and loading JDialog and uses swing worker to execute the task in
+	 * background off the EDT.</p>
+	 *
 	 * , ones able to pass code to a function in java? fantastic. (Runnable class; might have to see the code for that when i know more adv. java.)
-	 * 
+	 *
 	 * @param task  the code to run in background
 	 * @param event for the special case of being a ViewOptions select, expected null if not ComboBox item event
 	 * @param baseInput label text
 	 */
-	public void runWithLoadingLabel(Runnable task, ItemEvent event, String baseInput) 
+	public void runWithLoadingLabel(Runnable task, ItemEvent event, String baseInput)
 	{
-		
+
 		JDialog loading = new JDialog(null, "Please wait...", Dialog.ModalityType.APPLICATION_MODAL);
 		loading.setSize(420, 80);
 		loading.setLocationRelativeTo(null);
@@ -1548,12 +1549,12 @@ public class MainDisplayFrame extends JFrame
 		//String base = "Loading..."+event.getItem();
 		JLabel loadingLabel = new JLabel(base);
 		if(event!=null)
-			{
-				base = base +event.getItem();
-				loadingLabel.setText(base);
-				
-			}
-		
+		{
+			base = base +event.getItem();
+			loadingLabel.setText(base);
+
+		}
+
 		loadingLabel.setVerticalAlignment(SwingConstants.TOP);
 		loadingLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
@@ -1570,22 +1571,22 @@ public class MainDisplayFrame extends JFrame
 			{
 				secondsElapsed[0]++;
 				loadingLabel.setText(finalBase
-				 + "[" + secondsElapsed[0] + "s]");
-				
-				if(secondsElapsed[0]>5 && event != null) 
+						+ "[" + secondsElapsed[0] + "s]");
+
+				if(secondsElapsed[0]>5 && event != null)
 				{	// update label on >5 for all other selections other than analaysis
 					// for analysis selection use > 15 (expected to be > 5)
-					
+
 					if((!event.getItem().toString().toLowerCase().contains("analysis")) || (secondsElapsed[0]>15 && event.getItem().toString().toLowerCase().contains("analysis")))
-					{	
+					{
 						loadingLabel.setText("<html>"+finalBase+"["+secondsElapsed[0]+"]"+"<br> Quite slow, check other processes for access to database. <br>"
 								+ "e.g. Previous run / OneDrive </html>");
-					
+
 						loading.setSize(420,160);
 						loading.revalidate();
 						loading.repaint();
-					
-					}						
+
+					}
 				}//seconds >5
 			}//actionperformed
 		};//action list
@@ -1593,18 +1594,18 @@ public class MainDisplayFrame extends JFrame
 		final Timer timer = new Timer(1000, updateLabel);
 		timer.start();
 		loading.add(loadingLabel);
-		
+
 		// **** need this bit before caller in calling code *******
 		//tableModel.setRowCount(0);
-		
-		
+
+
 		SwingWorker<Void, Void> csvWorker = new SwingWorker<>()
 		{
 			@Override
 			protected Void doInBackground() throws Exception
 			{
 				task.run();  		// Time-consuming operation
-		
+
 				return null;
 			}
 
@@ -1614,12 +1615,12 @@ public class MainDisplayFrame extends JFrame
 				loading.dispose();
 				// continueButton.setEnabled(true);
 			}
-			
+
 		};//swing worker
-	
+
 		csvWorker.execute(); // worker.execute();
 		loading.setVisible(true);
-		
+
 	}// void run with loading
-	
+
 }

@@ -30,7 +30,7 @@ public class WelcomeScreenJDialog extends JDialog
 	private static final long serialVersionUID = 6653535384761080166L;
 
 	// wanted generated build-time but need maven external to generate system property.
-	// hard-coding for now. 
+	// hard-coding for now.
 	private static String BUILD_ID="v1.0-alpha";
 	/**
 	 * Instantiates a new WelcomeScreenJDialog (does not set visible)
@@ -41,20 +41,20 @@ public class WelcomeScreenJDialog extends JDialog
 		setTitle("Welcome " + BUILD_ID);
 		setSize(300, 120);
 		setLocationRelativeTo(null);
-		
-		
+
+
 		// DO NOT GO TO MAIN FRAME ON CLOSE
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() 
+		addWindowListener(new WindowAdapter()
 		{
-		    
+
 			@Override
-		    public void windowClosing(WindowEvent e) {
-		        // Exit the entire application
-		        System.exit(0);
-		    }
+			public void windowClosing(WindowEvent e) {
+				// Exit the entire application
+				System.exit(0);
+			}
 		});
-		
+
 		setModal(true); // Block input to other windows
 
 		// Button to close this pre-window dialog and show main window frame

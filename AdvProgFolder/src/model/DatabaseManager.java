@@ -177,8 +177,8 @@ public class DatabaseManager
 	/**
 	 * Creates indexes in the db. (informed note, most querys use LIKE %% so indexes wont be used anyway)
 	 * <p>Intended to be used after data inserts.</p>
-	 * 
-	 * Most search terms use 'LIKE' so not sure this even achieves anything. 
+	 *
+	 * Most search terms use 'LIKE' so not sure this even achieves anything.
 	 *
 	 * @throws Exception executeUpdate failed
 	 */
