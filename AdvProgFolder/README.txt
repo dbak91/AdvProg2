@@ -41,7 +41,7 @@ Circumvention: If expecting a single entry search will be slow.
 
 4.             
 Problem:       Loading Airport Analysis is too slow
-Reason:        Multiple handles to DataBase
+Reason:        Multiple handles to Database
 Circumvention: Ensure there is no connections or file handles on the databse (windows or prior run) e.g. 'taskkill /F /IM javaw.exe' or 'java.exe'. 
                Close background processes and ensure system is efficiently running. Check OneDrive as always!
 6. 
@@ -54,14 +54,14 @@ Problem:       User wants to cycle backwards and display last page
 Reason:        None, just unnecessary development.
 Circumvention: User should note the current sorting column in effect and click the header to reverse the sort order, then forwarding pages will effectively be backwards as Desired. 
 
-Expected enhancements and bugs:
+Expected enhancements and bug fixes:
 ------------------------------------
 	- Delay Reason Pie date search function
 	- Total results found and page "out of" display i.e. page 4 of 25. (if performance permits)
+	- Stop page number overflowing/continuing past result set. e.g. get result set / row count, vs PAGE_SIZE then disable next button.
 	- Improved and cleaned diagnostic messages (Log4j?). 
 	- Improved JDoc
 	- More DNR
 	- Scatter diagrams and bar charts
 	- Improved index use - i.e. wildcard and 'LIKE' prevents index use, this search type is not necessary for all searches e.g. iata code could be "EQ"
-	- Stop page number overflowing/continuing past result set. 
-	- Trends , e.g. departure delay causing arrival delay
+	- Trends , e.g. departure delay causing arrival delay correlation

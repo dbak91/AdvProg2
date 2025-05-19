@@ -8,9 +8,6 @@ import java.util.Map;
  * Design is inconsistent in that some strings and it's users use sql parameters '?' some use str concatenation later and others
  * use java parameters (builders). Future enh. is to have one consistent method. i.e. could use sql params everywhere but
  * would require in-code separation and use of db column identifiers in java e.g.
- * SQL="...WHERE ? LIKE ? ";
- * setString(0,"flight_id"); // db column hard string
- * setInt(1,valueToSearch); // in-code int valueToSearcg
  *  </p>
  *
  * @author 23751662
@@ -471,6 +468,7 @@ public class SearchStatements
 			System.err.println("'any' key not empty");
 			String anyTerm = searchTerms.get(key);
 
+			 
 			baseQuery.append(" AND (CAST(f.flight_id AS TEXT) LIKE '%" + anyTerm + "%' OR date LIKE '%" + anyTerm
 					+ "%' OR airline_code LIKE '%" + anyTerm + "%' OR CAST(f.flight_number AS TEXT) LIKE '%" + anyTerm
 					+ "%' OR air.name LIKE '%" + anyTerm

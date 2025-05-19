@@ -16,8 +16,11 @@ import model.sql.InsertStatements;
 /**
  * Dedicated to importing of CSV function only
  *
- * @author 23751662
  *
+ * <p>Suggested enhancement: use Map for fields and indexes instead of manual if branches.
+ * Don't want to break. Wasn't comfortable with Maps at early stage (used in later stages)</p>
+ * 
+ * @author 23751662
  *
  */
 
@@ -42,7 +45,11 @@ public class CSVImporter
 	private static int	DELAY_DUE_SECURITY_ind;
 	private static int	DELAY_DUE_LATE_AIRCRAFT_ind;
 	private static long rowsSkipped = 0;
-	private static int	BATCH_SIZE	= 10000;
+	private static StringBuilder skippedDiags = new StringBuilder();
+	
+	private static int	BATCH_SIZE	= 100000;
+	
+	
 
 	/**
 	 * Gets a connection to the database and csv input file, scans the input file line by line
@@ -76,18 +83,15 @@ public class CSVImporter
 			int batchCount = 0;
 			int indexReached = 1;
 
+			// get time of start
 			final long[] startMillis = {System.currentTimeMillis()};
-			final int[] seconds = {0};
-			// get eklapsed every milisec
-
-
 			int eta = 0;
 			/*
-			 * for each line, get fields[matching_index] into the ? params in insert sql statements
-			 * then add to sql batch, at every batch size execute and commit to db(partial ready commit good incase user want to cancel with
-			 *  atleast a subset of data to analyse and especially on big data sets
+			 * for each line, get fields[matching_index] into the '?' params in insert sql statements
+			 * then add to sql batch, at every batch size execute and commit to db(partial ready commit good in case user 
+			 * want to cancel with*  atleast a subset of data to analyse and especially on big data sets
 			 *
-			 *  params must match order of ?'s!! dev: dont like this separation, programming check impossible
+			 *  params must match order of ?'s!! 
 			 */
 			while ((line = reader.readLine()) != null)
 			{
@@ -133,25 +137,36 @@ public class CSVImporter
 						fields[ARR_TIME_ind].isEmpty() ? 0 : Integer.parseInt(fields[ARR_TIME_ind].split("\\.")[0]));
 
 
-				// add batches and execute
-				if (fields[FL_NUMBER_ind].isEmpty() || fields[FL_DATE_ind].isEmpty() || fields[ORIGIN_ind].isEmpty() || fields[DEP_TIME_ind].isEmpty())
+				//  skip rows that are invalid
+				if (fields[FL_NUMBER_ind].isEmpty() ||
+						fields[FL_DATE_ind].isEmpty() ||
+							fields[ORIGIN_ind].isEmpty() || 
+								fields[DEP_TIME_ind].isEmpty() ||
+									fields[ARR_TIME_ind].isEmpty())
 				{
 					String msg = "Not added "+fields[AIRLINE_ind] + " No. " + fields[FL_NUMBER_ind] + " missing critical fields";
 					if(fields[DEP_TIME_ind].isEmpty())
 					{
 						msg += " departure time empty";
 					}
+					if(fields[ARR_TIME_ind].isEmpty())
+					{
+						msg += " arrival time empty";
+					}
 					// do not add, invalid data
-					System.err.println(msg);
+					//System.err.println(msg);
+					skippedDiags.append("\n" + msg);
 					rowsSkipped++;
 				}
-				else
+				else //add batches and execute
 				{
 					insertFlightStmnt.addBatch();
 
 					insertDelayStmnt.setInt(1, indexReached);
 					String reason = "";
 					int delay = 0;
+					
+					// this is shocking design, all just doing the same check. Use Maps!!!
 					if (!fields[DELAY_DUE_CARRIER_ind].isEmpty())
 					{
 						if (Integer.parseInt(fields[DELAY_DUE_CARRIER_ind].split("\\.")[0]) != 0)
@@ -223,24 +238,24 @@ public class CSVImporter
 					{
 
 						batchCount = 0;
+						
 						long elapsedMillis = System.currentTimeMillis() - startMillis[0];
 
-						// this was a right faff with types
-						if (elapsedMillis > 0) {
-							long linesRemaining = lineCount - indexReached;
-							//seconds[0] = (int)(elapsedMillis / 1000);//
+						// this was a right faff with types and division
+						if (elapsedMillis > 0) 
+						{
 							double elapsedSeconds = elapsedMillis / 1000.0;
+							
+							long linesRemaining = lineCount - indexReached;
+							
 							double linesPerSecond = indexReached / elapsedSeconds;
-							eta =(int) linesPerSecond > 0 ?(int) linesRemaining / (int)linesPerSecond : -1;
-
-							System.out.println("eta: " + eta + " seconds" + "linecount"+lineCount +" index"+indexReached+"seconds"+seconds[0] +"linesPersec"+linesPerSecond);
+							eta =(int) linesPerSecond > 0 ?(int) linesRemaining / (int)linesPerSecond : 9999; // default If error or 0
+							//diags
+							//System.out.println("eta: " + eta + " seconds" + "linecount"+lineCount +" index"+indexReached+"seconds"+seconds[0] +"linesPersec"+linesPerSecond);
 						}
-						//eta = (int) (lineCount - indexReached) / seconds[0];
-						//	timer.restart();
-						loadingLabel.setText(loadingLabel.getText().split("Import")[0] + "Import [lines: "  + indexReached + " out of " + lineCount+"]" + " ETA: "+eta + "secs");
-						System.out.println("batch reached " + BATCH_SIZE + " rows " + "(" + indexReached + " out of " + lineCount +")"
-								);
-
+						
+						loadingLabel.setText(loadingLabel.getText().split("Import")[0] + "Import [lines: "  + indexReached + " of " + lineCount+"]" + " ETA: "+eta + "secs");
+						
 						// need to catch silent sql exception when csv has been partially updated
 						//(i.e unique constraint violated for first rows already imported) so it does not propagate and break while loop
 						// also useful for other batch processing errors.
@@ -275,12 +290,20 @@ public class CSVImporter
 			}
 
 			conn.commit();
+			
+			System.err.println(skippedDiags);
+			
 			loadingLabel.setText("CSV imported into database (rows skipped:"+rowsSkipped+")"
 					+ ". Creating indexes");
-			Thread.sleep(2000);
+			
+			Thread.sleep(3000); // pause so user can see rows skipped.
+			
 			System.out.println("CSV imported into db, creating indexes");
+			
 			DatabaseManager dbManager = new DatabaseManager();
 			dbManager.createIndexes();
+			
+			System.out.println("indexes finished");
 
 		}
 	}
@@ -296,6 +319,8 @@ public class CSVImporter
 	 * Scans through an array and maps the static index variables to the corresponding displacement
 	 *
 	 * The indexes are used to retrieve elements from the parsed csv data (e.g. a,b,c,d will reuslt in a_ind=0,b_ind=1...
+	 * 
+	 * verbose
 	 *
 	 * @param header the csv header array
 	 */

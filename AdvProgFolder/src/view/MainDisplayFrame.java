@@ -2,8 +2,6 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -26,13 +24,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
@@ -65,20 +61,21 @@ public class MainDisplayFrame extends JFrame
 	private final String						APP_TITLE				= "Flight Analyser";
 
 	private final int							AIRPORT_FULL_FIELD_SIZE	= 8;
-	public int									currentPage				= 0;
+	
+	
 	private CustomTableModel					tableModel;
 	private JLabel								pageLabel;
-	public CustomJTable								table;
+	
 	private TableRowSorter<DefaultTableModel>	sorter;
 
 	/**
 	 * The whole display
 	 */
-	public JPanel fullPanel ;
+	
 	private JButton								prevBtn					= new JButton("Previous");
-	public ChartPanel delayPiePanel;
+	
 	private JButton								nextBtn					= new JButton("Next");
-	public Map<Integer, FlightWithDelay>				rowFlightMap			= new HashMap<>();
+	
 	private String[]									viewOptions				= new String[]
 			{
 					"Flights",
@@ -108,12 +105,7 @@ public class MainDisplayFrame extends JFrame
 	};
 
 
-	// tested for none null to activate search filters
-	public String								dateToSearch			= null;
-	public String								iataToSearch			= null;
-	public String								airlineToSearch			= null;
-
-
+	
 	/*
 	 * ------------------------------------
 	 * ----------Public--------------------
@@ -126,12 +118,27 @@ public class MainDisplayFrame extends JFrame
 	// sort
 	public boolean								ascending				= true;
 
+	// quick search flag
 	public boolean								searchActive			= false;
+	
 	public Map<String, String>					searchMap				= new HashMap<>();
+	
 	public JScrollPane scrollPane;
 
 	public CardLayout							cardLayout;
 
+	// tested for none null to activate search filters
+	public String								dateToSearch			= null;
+	public String								iataToSearch			= null;
+	public String								airlineToSearch			= null;
+
+	// public now populate methods moved to own table class
+	public int									currentPage				= 0;
+	public CustomJTable								table;
+	public JPanel fullPanel ;
+	public ChartPanel delayPiePanel;
+	public Map<Integer, FlightWithDelay>				rowFlightMap			= new HashMap<>();
+	
 	/*
 	 * --------------------------------------------------------
 	 * -----------Constructor----------------------------------
@@ -311,7 +318,7 @@ public class MainDisplayFrame extends JFrame
 		userFuncPanel.add(searchBtn);
 		userFuncPanel.revalidate();
 		userFuncPanel.repaint();
-	}
+	}//set airline panel
 
 	/**
 	 * Set the user function panel for airport basic flight count (minimum stats detail
@@ -440,7 +447,7 @@ public class MainDisplayFrame extends JFrame
 
 		userFuncPanel.revalidate(); // Recalculates the layout
 		userFuncPanel.repaint();
-	}
+	}// set airport basic panel
 
 	/**
 	 * Set the user function panel to be that for the full airport display (various
@@ -557,7 +564,7 @@ public class MainDisplayFrame extends JFrame
 				}
 			};
 
-			runWithLoadingLabel(task, null, "Searching....");
+			runWithLoadingLabel(task, null, "Recalculating/Restricting...");
 
 			// else no action
 		});
@@ -576,7 +583,7 @@ public class MainDisplayFrame extends JFrame
 
 		userFuncPanel.revalidate(); // Recalculates the layout
 		userFuncPanel.repaint();
-	}
+	}// set airport panel
 
 	/**
 	 * Set the user function panel to be that for Flights.
@@ -639,7 +646,7 @@ public class MainDisplayFrame extends JFrame
 		userFuncPanel.add(fullSearchButton);
 		userFuncPanel.revalidate(); // Recalculates the layout
 		userFuncPanel.repaint();
-	}
+	}// set flight panel
 
 	/*
 	 * -------------------------------------------------------
@@ -838,7 +845,7 @@ public class MainDisplayFrame extends JFrame
 				super.replace(fb, offset, length, text, attrs);
 			}
 		}
-	}
+	}// number filter
 
 	/**
 	 * Action listener for page button, sets the current page +/- 1 depending on
@@ -922,9 +929,9 @@ public class MainDisplayFrame extends JFrame
 
 	}//page button action listner
 
-		
+
 	/**
-	 * Attempt at getting the repeated loading screen work in background to be defined once,
+	 * Late attempt at getting the repeated loading screen work in background to be defined once,
 	 *
 	 *
 	 * <p>Sets up a label and loading JDialog and uses swing worker to execute the task in

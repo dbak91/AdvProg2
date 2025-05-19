@@ -26,17 +26,21 @@ import model.DataDAO.Airport;
 import model.DataDAO.FlightWithDelay;
 
 /**
- * Extends JTable with populate row and set listener methods.  
+ * Extends JTable with populate row and set listener methods.
  */
 public class CustomJTable extends JTable
 {
 	private static final long serialVersionUID = 1L;
 	MainDisplayFrame parent;
 	CustomTableModel model;
+
+	private final Color                         highlightColour         = new Color(245,245,240);
+	private final int							PAGE_SIZE				= 50;
 	
-	public final Color                         highlightColour         = new Color(245,245,240);
-	public final int							PAGE_SIZE				= 50;
+	// public so frame can alter without setter
 	public int									airportFullPageSize		= 20;
+	
+	//  public so frame can populate its dropdown
 	public String[]								flightColumns			= new String[]
 			{
 					"Flight ID",
@@ -54,7 +58,7 @@ public class CustomJTable extends JTable
 
 			};
 
-	public String[]								airportColumns			=
+	private String[]								airportColumns			=
 		{
 				"iata_code",
 				"name",
@@ -66,7 +70,7 @@ public class CustomJTable extends JTable
 				"Least Airline",
 				"Total Flights"
 		};
-	public String[]								airlineColumns			=
+	private String[]								airlineColumns			=
 		{
 				"iata_code",
 				"name",
@@ -75,7 +79,7 @@ public class CustomJTable extends JTable
 				"Num Flights"
 		};
 
-	public String[]								airportMinColumns		=
+	private String[]								airportMinColumns		=
 		{
 				"iata_code",
 				"name",
@@ -260,7 +264,8 @@ public class CustomJTable extends JTable
 			@Override
 			public void mouseClicked(MouseEvent e)
 			{
-				if(parent.viewSelectorComboBox.getSelectedItem().toString().toLowerCase().contains("flight"))
+				String selectedView =parent.viewSelectorComboBox.getSelectedItem().toString().toLowerCase(); 
+				if(selectedView.contains("flight"))
 				{
 
 					int rowClicked = rowAtPoint(e.getPoint());
@@ -270,45 +275,110 @@ public class CustomJTable extends JTable
 						// Example: get column data from the model
 
 						int scheduled = (int) getValueAt(rowClicked,6);
-						int actual = (int) getValueAt(rowClicked,7);
+						int actualDep = (int) getValueAt(rowClicked,7); //1245 /245/ 45
 
-						int departureDelay = getDelay(scheduled,actual);
+						int departureDelay = getDelay(scheduled,actualDep);
 
 						scheduled = (int) getValueAt(rowClicked,8);
-						actual = (int) getValueAt(rowClicked,9);
+						int actualArr = (int) getValueAt(rowClicked,9); //1355/135/35
 
-						int arrivalDelay = getDelay(scheduled,actual);
+						int arrivalDelay = getDelay(scheduled,actualArr);
+						
+						
+						
+						int depHRs= actualDep / 100;
+						int depMins = (depHRs*60)+(actualDep % 100);
+						int arrHrs = actualArr / 100;
+						int arrMins = (arrHrs*60) + (actualArr % 100);
+						
+						// overnight adjustment
+						if (arrMins < depMins) 
+						{
+					        arrMins += (24 * 60);
+					    }
+						
+						int totalMins= arrMins-depMins;
+						int totalHrs = totalMins/60;
+						int remMins = totalMins%60;
+						
+						//int flightTime = getDelay(actual,scheduled);
+						
 						//String cellData1 = (String) table.getValueAt(rowClicked, 0); // column 0
 						//String cellData2 = (String) table.getValueAt(rowClicked, 1); // column 1
 
 						int dueDelay = arrivalDelay-departureDelay;
 						String message = "Airline: " + getValueAt(rowClicked,2)
-						+ "\n Departure delay: " + (departureDelay > 0? "+":"") + departureDelay + " minutes"
-						+ "\n Arrival delay: " + (arrivalDelay > 0? "+":"") + arrivalDelay + " minutes"
+						+ "\n Departure performance: " + (departureDelay > 0? "+ ":"- ") + (Math.abs((arrivalDelay/60))>0 ? Math.abs(departureDelay/60) +"hrs ": " ") +Math.abs(departureDelay %60) + "minutes"
+						+ "\n Arrival performance: " + (arrivalDelay > 0? "+ ":"- ") + (Math.abs((arrivalDelay/60))>0 ? Math.abs(arrivalDelay/60) +"hrs ": " ") +Math.abs(arrivalDelay %60) + "minutes"
 						+ "\n Reason: " + getValueAt(rowClicked,10)
-						+ "\n In flight adjustment: " + (dueDelay > 0? "+":"") + dueDelay + " minutes";
+						+ "\n In-flight timing: " + (dueDelay > 0? "+":"") + dueDelay + " minutes"
+						+ "\n Flight time: " + totalHrs+"hrs "+remMins+"mins" ;
 
 
 
 						JOptionPane.showMessageDialog(CustomJTable.this, message, "Flight Information", JOptionPane.INFORMATION_MESSAGE);
 					}
-				}// if flight
+				}else if (selectedView.contains("analysis")){
+					// if flight
+					int rowClicked = rowAtPoint(e.getPoint());
+
+					if (rowClicked >= 0 && e.getClickCount() == 1) // row count for?
+					{
+						// Example: get column data from the model
+
+						float orig= (float) getValueAt(rowClicked,2);
+						float dest= (float) getValueAt(rowClicked,4);
+						
+						float total = orig+dest;
+
+						//int departureDelay = getDelay(scheduled,actual);
+
+					//	scheduled = (int) getValueAt(rowClicked,8);
+						//actual = (int) getValueAt(rowClicked,9);
+
+					//	int arrivalDelay = getDelay(scheduled,actual);
+						//String cellData1 = (String) table.getValueAt(rowClicked, 0); // column 0
+						//String cellData2 = (String) table.getValueAt(rowClicked, 1); // column 1
+
+						//int dueDelay = arrivalDelay-departureDelay;
+						String message = "Airport: " + getValueAt(rowClicked,1)
+						+ "\n Total avg delay: " + (total > 0? "+":"") + total + " minutes";
+						//+ "\n Arrival delay: " + (arrivalDelay > 0? "+":"") + arrivalDelay + " minutes"
+						//+ "\n Reason: " + getValueAt(rowClicked,10)
+						//+ "\n In flight adjustment: " + (dueDelay > 0? "+":"") + dueDelay + " minutes";
+
+
+
+						JOptionPane.showMessageDialog(CustomJTable.this, message, "Airport Information", JOptionPane.INFORMATION_MESSAGE);
+						
+					}
+
+				}
 
 			}//mouse clciked override
 
+			// e.g scheduled arrival vs actual arrival
+			// 
 			private int getDelay(int scheduled, int actual)
 			{
-				// TODO Auto-generated method stub
-				int scheduledHours = scheduled / 100; // 12
-				int scheduledMinutes = scheduled % 100; // 45
+				int scheduledHours = scheduled / 100; // e.g. 1245=1200=12
+				int scheduledMinutes =( scheduled % 100); // e.g 1245=12r45=45
 
-				int actualHours = actual / 100; // 13
-				int actualMinutes = actual % 100; // 55
+				int actualHours = actual / 100; 
+				int actualMinutes = (actual % 100); 
 
+				
 				int scheduledTotalMinutes = scheduledHours * 60 + scheduledMinutes; // 12*60 + 45 = 765
 				int actualTotalMinutes = actualHours * 60 + actualMinutes; // 13*60 + 55 = 835
 
-				return actualTotalMinutes - scheduledTotalMinutes;
+				  int delay = actualTotalMinutes - scheduledTotalMinutes;
+
+				    // handle next day, arbiruary on 12 hrs early
+				    if (delay < -(12*24)) {
+				        delay += 1440;
+				    }
+
+				    return delay;
 			}//get delay
 		});// add listener
 	}//setTableRowListener
@@ -617,7 +687,7 @@ public class CustomJTable extends JTable
 		}
 
 	}// populate with airport
-	
+
 	/**
 	 * Extends cell renderer intended to highlight a column with the supplied colour
 	 */

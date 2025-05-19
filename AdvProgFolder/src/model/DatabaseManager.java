@@ -127,21 +127,7 @@ public class DatabaseManager
 	public static boolean existsAndPopulated()
 	{
 
-		boolean result = false;
-		if (exists())
-		{
-			if (populated)
-			{
-				result = true;
-			}
-			else if (hasData())
-			{
-				result = true;
-			}
-
-		}
-
-		return result;
+		return exists() && hasData();
 	}
 
 	/**

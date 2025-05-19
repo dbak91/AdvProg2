@@ -43,7 +43,10 @@ public class FullSearchPanel extends JPanel
 	private static final long	serialVersionUID	= 7767727814538820383L;
 	private boolean						fieldChanged		= false;				// flag for changed text
 	private List<JTextField>			fields				= new ArrayList<>();
-
+	private JPanel form ;
+    private GridBagConstraints grid;
+    private MainDisplayFrame parent;
+    private JButton searchBtn;
 	/**
 	 * Constructor
 	 * <ul>
@@ -68,16 +71,54 @@ public class FullSearchPanel extends JPanel
 	public FullSearchPanel(MainDisplayFrame parent)
 	{
 
+		this.parent = parent;
 		setLayout(new BorderLayout());
 
-		JPanel form = new JPanel();
+		form = new JPanel();
+		
+		
+		setFormLayout();
+		
+		setFieldsAndAddToGrid();
+	
+		searchBtn = new JButton("Search");
+		
+		setSearchActionListener();
+
+	
+		// second column, give it some left space
+		grid.gridx = 2;
+		grid.gridy = grid.gridy + 1; // next row down
+
+		form.add(searchBtn, grid);
+
+		// addining without a NORTH BorderLayout to gridbad will stretch/fill
+		// so add to north wrapper for non stretched fields and northwest start
+		JPanel northWrapper = new JPanel(new BorderLayout());
+		northWrapper.add(form, BorderLayout.NORTH);
+		// add(wrapper, BorderLayout.WEST);
+		add(northWrapper, BorderLayout.WEST);
+	
+	} //constructor
+
+	private void setFormLayout()
+	{
+		// TODO Auto-generated method stub
 		form.setLayout(new GridBagLayout());
 
-		GridBagConstraints grid = new GridBagConstraints();
+		grid = new GridBagConstraints();
 
 		grid.insets = new Insets(4, 4, 4, 4); // padding
 		grid.anchor = GridBagConstraints.WEST; // align labels to the left
 
+	}
+	
+	/**
+	 * Add number of fields and in grid layout ('From' and 'To' fields must be on same line)
+	 */
+	private void setFieldsAndAddToGrid()
+	{
+		// TODO Auto-generated method stub
 		// do 12 times i.e. 12 rows to add
 		for (int i = 0; i < 12; i++)
 		{
@@ -246,8 +287,15 @@ public class FullSearchPanel extends JPanel
 			//
 		} // switch on number of fields
 
-		JButton searchBtn = new JButton("Search");
+	}// set fields
 
+	/**
+	 * set action listener on search button to add non-empty fields to search fields 
+	 * and call populate tabe with flights. 
+	 */
+	private void setSearchActionListener()
+	{
+		// TODO Auto-generated method stub
 		searchBtn.addActionListener(new ActionListener()
 		{
 			/**
@@ -369,17 +417,5 @@ public class FullSearchPanel extends JPanel
 				parent.cardLayout.show(parent.mainPanel, "TABLE V");
 			}
 		});
-		// second column, give it some left space
-		grid.gridx = 2;
-		grid.gridy = grid.gridy + 1; // next row down
-
-		form.add(searchBtn, grid);
-
-		// addining without a NORTH BorderLayout to gridbad will stretch/fill
-		// so add to north wrapper for non stretched fields and northwest start
-		JPanel northWrapper = new JPanel(new BorderLayout());
-		northWrapper.add(form, BorderLayout.NORTH);
-		// add(wrapper, BorderLayout.WEST);
-		add(northWrapper, BorderLayout.WEST);
-	}
+	}// set search action listener
 }

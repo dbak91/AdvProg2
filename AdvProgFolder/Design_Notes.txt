@@ -6,8 +6,8 @@ Source structure:
     Controller: Run program, control objects
 
 Program structure concept:
---------------------------
-- Main class
+--------------------------:
+- Main frame class
 - Static class for handling creation and as-a-whole interrogation of database 
 - Static class for importing csv into database
 - Classes for representing access to, and forms of the data, in the database i.e. DAO
@@ -28,10 +28,11 @@ Swing structure:
 
 Notes:
 ------
-- Spec mentioned graphs. Developer is severely colour blind and avoids graphical representation as much as possible, preferring tables and data. However deep analysis and complex search restrictions on the database are performed (see Airport analysis tab) 
+- Focus was on product functionality over code supportability. Developed as learned. 
+- Spec mentioned graphs. Developer is severely colour blind and avoids graphical representation as much as possible, preferring tables and text data. However deep analysis and complex search restrictions on the database are performed (see Airport analysis tab) 
 - No custom exceptions. 
 - Could be made wholly object oriented but not necessary for the function type of the static classes.
-- Silent exceptions were seen to propagate with no functionality pickup during dev (i.e. unexpected), endeavoured to fix. 
+- Some silent exceptions were seen to propagate with no functionality pickup during dev (i.e. unexpected and unhandled), endeavoured to fix but likely some left. 
 
 
 Citations:
