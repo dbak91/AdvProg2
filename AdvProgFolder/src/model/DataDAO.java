@@ -219,6 +219,75 @@ public class DataDAO implements AutoCloseable
 		return airports;
 	}
 
+	public Map<String,Integer> getDelayCountByAirline(String iata)throws SQLException
+	{
+		// TODO Auto-generated method stub
+				Map<String,Integer> delayCountMap = new HashMap<>();
+				//String order = ascending ? "ASC" : "DESC";
+				String sql = SearchStatements.buildSearchDelayByAirline(iata);
+				try
+				{
+					PreparedStatement stmt = conn.prepareStatement(	sql);
+					//stmt.setString(1, iata);
+					ResultSet rs;
+					System.out.println(stmt.toString());
+					rs = stmt.executeQuery();
+
+					String securityKey = "security";
+					int secVal =0;
+					delayCountMap.put(securityKey,secVal);
+					String nasKey ="air traffic";
+					int nasVal =0;
+					delayCountMap.put(nasKey,nasVal);
+					String carrierKey = "carrier";
+					int carVal =0;
+					delayCountMap.put(carrierKey,carVal);
+					String aircraftKey = "late aircraft";
+					int craftVal =0;
+					delayCountMap.put(aircraftKey,craftVal);
+					String weatherKey = "weather";
+					int weathVal=0;
+					delayCountMap.put(weatherKey,weathVal);
+					// Loop through the result set and add each airline code to the list
+					while (rs.next())
+					{
+						String reason = rs.getString("reason").toLowerCase();
+
+						if(reason.contains(securityKey)) {
+							secVal++;
+							delayCountMap.put(securityKey,secVal);
+						}
+						if(reason.contains(nasKey)) {
+							nasVal++;
+							delayCountMap.put(nasKey,nasVal);
+						}
+						if(reason.contains(carrierKey)) {
+							carVal++;
+							delayCountMap.put(carrierKey,carVal);
+
+						}
+						if(reason.contains(aircraftKey)) {
+							craftVal++;
+							delayCountMap.put(aircraftKey,craftVal);
+						}
+
+
+						if(reason.contains(weatherKey)) {
+							weathVal++;
+							delayCountMap.put(weatherKey,weathVal);
+						}
+					}
+				} catch (SQLException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+
+
+
+				return delayCountMap;
+	}
 	/**
 	 * Takes an iata_code and returns the matching AirlineWithData from Airline db table
 	 *
@@ -638,56 +707,8 @@ public class DataDAO implements AutoCloseable
 
 		try
 		{
-			PreparedStatement stmt = conn.prepareStatement(	SearchStatements.searchForAllDelays);
-			//stmt.setString(1, airport);
-			ResultSet rs;
+			delayCountMap=getDelayCountByAirline(""); // null search for all
 
-			rs = stmt.executeQuery();
-
-			String securityKey = "security";
-			int secVal =0;
-			delayCountMap.put(securityKey,secVal);
-			String nasKey ="air traffic";
-			int nasVal =0;
-			delayCountMap.put(nasKey,nasVal);
-			String carrierKey = "carrier";
-			int carVal =0;
-			delayCountMap.put(carrierKey,carVal);
-			String aircraftKey = "late aircraft";
-			int craftVal =0;
-			delayCountMap.put(aircraftKey,craftVal);
-			String weatherKey = "weather";
-			int weathVal=0;
-			delayCountMap.put(weatherKey,weathVal);
-			// Loop through the result set and add each airline code to the list
-			while (rs.next())
-			{
-				String reason = rs.getString("reason").toLowerCase();
-
-				if(reason.contains(securityKey)) {
-					secVal++;
-					delayCountMap.put(securityKey,secVal);
-				}
-				if(reason.contains(nasKey)) {
-					nasVal++;
-					delayCountMap.put(nasKey,nasVal);
-				}
-				if(reason.contains(carrierKey)) {
-					carVal++;
-					delayCountMap.put(carrierKey,carVal);
-
-				}
-				if(reason.contains(aircraftKey)) {
-					craftVal++;
-					delayCountMap.put(aircraftKey,craftVal);
-				}
-
-
-				if(reason.contains(weatherKey)) {
-					weathVal++;
-					delayCountMap.put(weatherKey,weathVal);
-				}
-			}
 		} catch (SQLException e)
 		{
 			// TODO Auto-generated catch block

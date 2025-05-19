@@ -267,10 +267,34 @@ public class MainDisplayFrame extends JFrame
 	private void setDelayPanel() {
 		userFuncPanel.removeAll();
 		userFuncPanel.add(viewSelectorComboBox);
+		JLabel thisSearch =new JLabel("All");
+		
+		JLabel airlineLabel =new JLabel("Airline (iata only):");
+		userFuncPanel.add(airlineLabel);
+		JTextField input = new JTextField(6);
+		userFuncPanel.add(input);
+		JButton search = new JButton("Recaluclate");
+		userFuncPanel.add(search);
+		search.addActionListener((ActionEvent e) ->
+		{
+
+			Runnable task = ()->{
+				table.populatePieChartWithAirlineDelay(input.getText());
+			};
+			
+			runWithLoadingLabel(task, null, "Calulating pie chart");
+			thisSearch.setText(input.getText().isEmpty()?"All":input.getText());
+			userFuncPanel.revalidate();
+			userFuncPanel.repaint();
+			// else no action
+		});
+		userFuncPanel.add(thisSearch);
 		table.populatePieChartWithDelays();
 		userFuncPanel.revalidate();
 		userFuncPanel.repaint();
 	}
+
+
 	private void setAirlinePanel()
 	{
 

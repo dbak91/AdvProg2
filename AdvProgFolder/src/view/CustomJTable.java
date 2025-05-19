@@ -539,7 +539,41 @@ public class CustomJTable extends JTable
 		}
 	}//populate with flight search
 
+	public void populatePieChartWithAirlineDelay(String iata)
+	{
+		// TODO Auto-generated method stub
+		DataDAO dataAccess;
+		try
+		{
+			dataAccess = new DataDAO();
+			Map<String,Integer> delayList = dataAccess.getDelayCountByAirline(iata);
 
+			//System.err.println("count of sec"+ delayList.get("carrier"));
+
+
+			DefaultPieDataset dataset = new DefaultPieDataset();
+			for (Map.Entry<String, Integer> entry :delayList.entrySet())
+			{
+				dataset.setValue(entry.getKey(), entry.getValue());
+			}
+
+
+			JFreeChart pieChart = ChartFactory.createPieChart(
+					"Delay Distribution",
+					dataset,
+					true, true, false  );
+
+			parent.fullPanel.remove(parent.scrollPane);
+			parent.fullPanel.remove(parent.delayPiePanel);
+			parent.delayPiePanel = new ChartPanel(pieChart);
+			parent.fullPanel.add(parent.delayPiePanel);
+
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Populates table with all airlines matching searchMap contents
 	 */

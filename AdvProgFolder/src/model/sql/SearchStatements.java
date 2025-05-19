@@ -491,4 +491,11 @@ public class SearchStatements
 
 		return stmt;
 	}
+	
+	public static String buildSearchDelayByAirline(String iata) {
+		String base = "SELECT * FROM FLIGHT f " 
+		        + " LEFT JOIN Delay_Reason d ON f.flight_id = d.flight_id " 
+		        + " WHERE f.airline_code LIKE '%" + iata + "%'";
+		return base;
+	}
 }
