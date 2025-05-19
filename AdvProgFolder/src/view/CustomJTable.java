@@ -256,7 +256,7 @@ public class CustomJTable extends JTable
 	}// set header listener
 
 
-	public void setTableRowListener()
+	public void setRowListener()
 	{
 
 		addMouseListener(new MouseAdapter()
@@ -265,6 +265,8 @@ public class CustomJTable extends JTable
 			public void mouseClicked(MouseEvent e)
 			{
 				String selectedView =parent.viewSelectorComboBox.getSelectedItem().toString().toLowerCase(); 
+				
+				
 				if(selectedView.contains("flight"))
 				{
 
@@ -308,8 +310,8 @@ public class CustomJTable extends JTable
 
 						int dueDelay = arrivalDelay-departureDelay;
 						String message = "Airline: " + getValueAt(rowClicked,2)
-						+ "\n Departure performance: " + (departureDelay > 0? "+ ":"- ") + (Math.abs((arrivalDelay/60))>0 ? Math.abs(departureDelay/60) +"hrs ": " ") +Math.abs(departureDelay %60) + "minutes"
-						+ "\n Arrival performance: " + (arrivalDelay > 0? "+ ":"- ") + (Math.abs((arrivalDelay/60))>0 ? Math.abs(arrivalDelay/60) +"hrs ": " ") +Math.abs(arrivalDelay %60) + "minutes"
+						+ "\n Departure performance: " + (departureDelay > 0? "+ ":"- ") + (Math.abs((arrivalDelay/60))>0 ? Math.abs(departureDelay/60) +"hrs ": "") +Math.abs(departureDelay %60) + "minutes"
+						+ "\n Arrival performance: " + (arrivalDelay > 0? "+ ":"- ") + (Math.abs((arrivalDelay/60))>0 ? Math.abs(arrivalDelay/60) +"hrs ": "") +Math.abs(arrivalDelay %60) + "minutes"
 						+ "\n Reason: " + getValueAt(rowClicked,10)
 						+ "\n In-flight timing: " + (dueDelay > 0? "+":"") + dueDelay + " minutes"
 						+ "\n Flight time: " + totalHrs+"hrs "+remMins+"mins" ;
@@ -318,7 +320,9 @@ public class CustomJTable extends JTable
 
 						JOptionPane.showMessageDialog(CustomJTable.this, message, "Flight Information", JOptionPane.INFORMATION_MESSAGE);
 					}
-				}else if (selectedView.contains("analysis")){
+				}
+				else if (selectedView.contains("analysis"))
+				{
 					// if flight
 					int rowClicked = rowAtPoint(e.getPoint());
 
@@ -331,22 +335,9 @@ public class CustomJTable extends JTable
 						
 						float total = orig+dest;
 
-						//int departureDelay = getDelay(scheduled,actual);
-
-					//	scheduled = (int) getValueAt(rowClicked,8);
-						//actual = (int) getValueAt(rowClicked,9);
-
-					//	int arrivalDelay = getDelay(scheduled,actual);
-						//String cellData1 = (String) table.getValueAt(rowClicked, 0); // column 0
-						//String cellData2 = (String) table.getValueAt(rowClicked, 1); // column 1
-
-						//int dueDelay = arrivalDelay-departureDelay;
 						String message = "Airport: " + getValueAt(rowClicked,1)
 						+ "\n Total avg delay: " + (total > 0? "+":"") + total + " minutes";
-						//+ "\n Arrival delay: " + (arrivalDelay > 0? "+":"") + arrivalDelay + " minutes"
-						//+ "\n Reason: " + getValueAt(rowClicked,10)
-						//+ "\n In flight adjustment: " + (dueDelay > 0? "+":"") + dueDelay + " minutes";
-
+						
 
 
 						JOptionPane.showMessageDialog(CustomJTable.this, message, "Airport Information", JOptionPane.INFORMATION_MESSAGE);

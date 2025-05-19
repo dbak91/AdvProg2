@@ -699,6 +699,12 @@ public class DataDAO implements AutoCloseable
 		return flights;
 	}
 
+	/**
+	 * Now a wrapper
+	 * 
+	 *  null search return all delay reasons
+	 * @return
+	 */
 	public Map<String,Integer> getAllDelaysWithCount()
 	{
 		// TODO Auto-generated method stub
@@ -714,9 +720,6 @@ public class DataDAO implements AutoCloseable
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-
-
 
 		return delayCountMap;
 		//eturn null;

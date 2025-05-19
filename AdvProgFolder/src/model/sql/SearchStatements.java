@@ -89,12 +89,11 @@ public class SearchStatements
 	{
 		StringBuilder sql = new StringBuilder(
 				"SELECT a.iata_code,a.name, "
-
-						+ "COUNT(f.flight_id) AS flight_count,"
-						+ "SUM(CASE WHEN d.delay_length IS NOT NULL THEN d.delay_length ELSE 0 END) AS total_delay,"
-						+ "AVG(CASE WHEN d.delay_length IS NOT NULL THEN d.delay_length ELSE 0 END) AS avg_delay "
-						+ "FROM Airline a " + "LEFT JOIN Flight f ON a.iata_code = f.airline_code "
-						+ "LEFT JOIN Delay_Reason d ON f.flight_id = d.flight_id ");
+				+ "COUNT(f.flight_id) AS flight_count,"
+				+ "SUM(CASE WHEN d.delay_length IS NOT NULL THEN d.delay_length ELSE 0 END) AS total_delay,"
+				+ "AVG(CASE WHEN d.delay_length IS NOT NULL THEN d.delay_length ELSE 0 END) AS avg_delay "
+				+ "FROM Airline a " + "LEFT JOIN Flight f ON a.iata_code = f.airline_code "
+				+ "LEFT JOIN Delay_Reason d ON f.flight_id = d.flight_id ");
 
 		String suffix = " GROUP BY a.iata_code, a.name " + "ORDER BY a.iata_code";
 
@@ -199,13 +198,13 @@ public class SearchStatements
 						+ "LEFT JOIN Flight f ON a.iata_code = f.flight_origin "
 						+ "LEFT JOIN Delay_Reason d ON f.flight_id = d.flight_id " + "WHERE 1=1 ");
 		String suffix = "GROUP BY a.iata_code, a.name ";
-		// boolean hasWhere = false;
+
 
 		if (searchTerms.containsKey("origin") && !searchTerms.get("origin").isEmpty())
 		{
 			// baseQuery.replace(84,85," LEFT JOIN airport air ON air.iata_code")
 			baseQuery.append(" AND f.flight_origin LIKE '%").append(searchTerms.get("origin")).append("%' ");
-			// hasWhere = true;
+
 		}
 
 		if (searchTerms.containsKey("destination") && !searchTerms.get("destination").isEmpty())
@@ -498,4 +497,6 @@ public class SearchStatements
 		        + " WHERE f.airline_code LIKE '%" + iata + "%'";
 		return base;
 	}
+	
+	
 }

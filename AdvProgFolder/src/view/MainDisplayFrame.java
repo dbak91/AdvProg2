@@ -240,7 +240,7 @@ public class MainDisplayFrame extends JFrame
 		mainPanel.add(new FullSearchPanel(this), "FULL_SEARCH"); // extra view
 
 		setViewSelectorListener(); // set listener to switch tables/panels/view when choosing options
-		table.setTableRowListener();
+		table.setRowListener();
 		table.setTableHeaderListener();
 
 		add(mainPanel);
