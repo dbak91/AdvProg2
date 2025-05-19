@@ -293,11 +293,17 @@ public class CustomJTable extends JTable
 						int arrHrs = actualArr / 100;
 						int arrMins = (arrHrs*60) + (actualArr % 100);
 						
+						//00:00 stored as 2400 (wth?)
+						if(arrMins==((24*60)+(actualArr%100))) {
+							arrMins =- (24*60);
+						}
+						
 						// overnight adjustment
 						if (arrMins < depMins) 
 						{
 					        arrMins += (24 * 60);
 					    }
+						
 						
 						int totalMins= arrMins-depMins;
 						int totalHrs = totalMins/60;
@@ -314,7 +320,7 @@ public class CustomJTable extends JTable
 						+ "\n Arrival performance: " + (arrivalDelay > 0? "+ ":"- ") + (Math.abs((arrivalDelay/60))>0 ? Math.abs(arrivalDelay/60) +"hrs ": "") +Math.abs(arrivalDelay %60) + "minutes"
 						+ "\n Reason: " + getValueAt(rowClicked,10)
 						+ "\n In-flight timing: " + (dueDelay > 0? "+":"") + dueDelay + " minutes"
-						+ "\n Flight time: " + totalHrs+"hrs "+remMins+"mins" ;
+						+ "\n Flight duration: " + totalHrs+"hrs "+remMins+"mins" ;
 
 
 

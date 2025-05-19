@@ -27,8 +27,6 @@ public class DatabaseManager
 	private static final String		FLIGHTS_URL		= "jdbc:sqlite:" + DATABASE_NAME;
 	private static final String		SQL_PATH_STR	= "/createTables.sql"; // in compiled resources folder
 
-	private static boolean populated = false;
-
 	/**
 	 * Retrieves a Connection to the database hard coded in FLIGHTS_URL.
 	 *

@@ -449,14 +449,15 @@ public class MainDisplayFrame extends JFrame
 
 		userFuncPanel.add(viewSelectorComboBox);
 
+		userFuncPanel.add(new JLabel(" | "));
+		userFuncPanel.add(new JLabel("Restric to set"));
+		userFuncPanel.add(new JLabel(" | "));
 		userFuncPanel.add(minLabel);
 		userFuncPanel.add(minField);
 		userFuncPanel.add(maxLabel);
 		userFuncPanel.add(maxField);
-		userFuncPanel.add(new JLabel(" | "));
-		userFuncPanel.add(new JLabel("Restric to set"));
-
-		userFuncPanel.add(new JLabel(" | "));
+	
+		
 		userFuncPanel.add(originLabel);
 		userFuncPanel.add(originField);
 
